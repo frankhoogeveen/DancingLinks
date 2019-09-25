@@ -14,7 +14,7 @@ import nl.fh.solver.LinksSolver;
  * 
  * @author frank
  */
-public abstract class AbstractNode {
+public abstract class AbstractNode implements BareNode{
     // the nearest neighbours
     AbstractNode left;
     AbstractNode right;

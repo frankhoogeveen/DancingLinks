@@ -8,6 +8,7 @@
 
 import nl.fh.node.NodeTableTest;
 import nl.fh.solver.LinksSolverTest;
+import nl.fh.solver.SolverTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -18,7 +19,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     NodeTableTest.class,
-    LinksSolverTest.class
+    LinksSolverTest.class,
+    SolverTest.class
 })
 public class TestSuite {
     

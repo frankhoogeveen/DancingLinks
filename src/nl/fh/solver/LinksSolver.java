@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import nl.fh.colStrategy.ColStrategy;
+import nl.fh.node.BareNode;
 import nl.fh.node.AbstractNode;
+import nl.fh.node.ColHeader;
 import nl.fh.node.ColHeaderNode;
 import nl.fh.node.NodeTable;
 import nl.fh.node.RowHeaderNode;
-import nl.fh.node.TableHeaderNode;
+import nl.fh.node.MarkerNode;
 import nl.fh.rowStrategy.RowStrategy;
 import nl.fh.solutionProcessor.SolutionProcessor;
 
@@ -31,14 +33,14 @@ public class LinksSolver<R, C> {
     private final LinksMapper<R, C> mapper;
     private final NodeTable table;
     private final Stack<RowHeaderNode> currentPartialSolution;
-    private final Stack<AbstractNode> hiddenNodes;
+    private final Stack<BareNode> hiddenNodes;
     
     private final ColStrategy colStrategy;
     private final RowStrategy rowStrategy;
     private final SolutionProcessor solutionProcessor;
-    private final AbstractNode marker;
-
-
+    private final BareNode marker;
+    private final BareNode marker2;
+    private final BareNode marker3;
     /**
      *
      * @param cs column strategy
@@ -49,8 +51,10 @@ public class LinksSolver<R, C> {
         this.mapper = new LinksMapper<R, C>();
         this.table = new NodeTable();
         this.currentPartialSolution = new Stack<RowHeaderNode>();
-        this.hiddenNodes = new Stack<AbstractNode>();
-        this.marker = TableHeaderNode.getInstance();
+        this.hiddenNodes = new Stack<BareNode>();
+        this.marker = new MarkerNode();
+        this.marker2 = new MarkerNode();
+        this.marker3 = new MarkerNode();
         
         this.colStrategy = cs;
         this.rowStrategy = rs;
@@ -121,8 +125,6 @@ public class LinksSolver<R, C> {
         }
         
     }
-
-
     
     @Override
     public String toString(){
@@ -170,6 +172,7 @@ public class LinksSolver<R, C> {
      * @param node 
      * 
      *  hides the entire, currently visible row containing node
+     *  and marks on the stack what has been hidden
      */
     void hideColumn(AbstractNode node) {
         // push a marker on the stack
@@ -187,10 +190,10 @@ public class LinksSolver<R, C> {
     /**
      * is the inverse of hideRow()
      */
-    private void restoreRow() {
-        AbstractNode node = this.hiddenNodes.pop();
+    void restoreRow() {
+        BareNode node = this.hiddenNodes.pop();
         while(node != marker){
-            node.restoreVertical();
+            ((AbstractNode)node).restoreVertical();
             node = this.hiddenNodes.pop();
         }
     }
@@ -198,19 +201,43 @@ public class LinksSolver<R, C> {
      /**
      * is the inverse of hideColumn()
      */
-    private void restoreColumn() {
-        AbstractNode node = this.hiddenNodes.pop();
+    void restoreColumn() {
+        BareNode node = this.hiddenNodes.pop();
         while(node != marker){
-            node.restoreHorizontal();
+            ((AbstractNode)node).restoreHorizontal();
             node = this.hiddenNodes.pop();
         }
     }
 
     private void hideRowsAndColumns(RowHeaderNode chosenRow) {
-
+        
+        AbstractNode currentHor = chosenRow.getRight();
+        
+        this.hiddenNodes.push(marker2);
+        while(currentHor != chosenRow){
+            ColHeaderNode currentCol = (ColHeaderNode) currentHor.findColumn();
+            AbstractNode currentVert = currentCol.getDown();
+            this.hiddenNodes.push(marker3);
+            while(currentVert != currentCol){
+                hideRow(currentVert);
+                currentVert = currentVert.getDown();
+            }
+            hideColumn(currentCol);
+            currentHor = currentHor.getRight();
+        }
     }
 
     private void restoreRowsAndColumns() {
-
+        
+        BareNode next = this.hiddenNodes.pop();
+        while(next != marker2){
+            restoreColumn();
+            next = this.hiddenNodes.pop();
+            while(next != marker3){
+                restoreRow();
+                next = this.hiddenNodes.pop();
+            }
+            next = this.hiddenNodes.pop();
+        }
     }
 }

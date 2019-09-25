@@ -28,7 +28,7 @@ public class LinksSolverTest {
      * Test of addLink method, of class NodeTable.
      */
     @Test
-    public void testHideRestore() {
+    public void testHideRow() {
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
         TakeAllRows rs = new TakeAllRows();
         SolutionStore proc = new SolutionStore();
@@ -41,6 +41,9 @@ public class LinksSolverTest {
         AbstractNode row = head.getDown();
         AbstractNode col = head.getRight();
         AbstractNode link = row.getRight();
+        
+        solver.hideRow(link);
+        solver.restoreRow();
         
         assertEquals(row, head.getUp());
         assertEquals(row, head.getDown());
@@ -64,11 +67,44 @@ public class LinksSolverTest {
     }
 
     /**
-     * Test of solve method, of class LinksSolver.
+     * Test of addLink method, of class NodeTable.
      */
     @Test
-    public void testSolve() {
-    }
+    public void testHideCol() {
+        TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
+        TakeAllRows rs = new TakeAllRows();
+        SolutionStore proc = new SolutionStore();
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
 
-    
+        solver.addLink("RowA", "col1");
+        
+        NodeTable table = solver.getTable();
+        TableHeaderNode head = table.getTableHeader();
+        AbstractNode row = head.getDown();
+        AbstractNode col = head.getRight();
+        AbstractNode link = row.getRight();
+        
+        solver.hideColumn(link);
+        solver.restoreColumn();
+        
+        assertEquals(row, head.getUp());
+        assertEquals(row, head.getDown());
+        assertEquals(col, head.getRight());
+        assertEquals(col, head.getLeft());
+        
+        assertEquals(head, row.getUp());
+        assertEquals(head, row.getDown());
+        assertEquals(link, row.getLeft());
+        assertEquals(link, row.getRight());
+        
+        assertEquals(link, col.getUp());
+        assertEquals(link, col.getDown());
+        assertEquals(head, col.getLeft());
+        assertEquals(head, col.getRight());
+        
+        assertEquals(col, link.getUp());
+        assertEquals(col, link.getDown());
+        assertEquals(row, link.getLeft());
+        assertEquals(row, link.getRight());
+    }
 }
