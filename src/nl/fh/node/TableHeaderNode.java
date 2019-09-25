@@ -21,7 +21,7 @@ public class TableHeaderNode extends AbstractNode implements RowHeader,ColHeader
      * 
      * @return a singleton instance of the TableHeaderNode
      */
-    static TableHeaderNode getInstance(){
+    public static TableHeaderNode getInstance(){
         if(instance == null){
             instance = new TableHeaderNode();
             instance.up = instance;
@@ -48,12 +48,12 @@ public class TableHeaderNode extends AbstractNode implements RowHeader,ColHeader
     }
     
     @Override
-    ColHeader findColumn() {    
+    public ColHeader findColumn() {    
         return this;
     }
 
     @Override
-    RowHeader findRow() {
+    public RowHeader findRow() {
         return this;
     }
 }

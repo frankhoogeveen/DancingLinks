@@ -5,8 +5,9 @@
  */
 package nl.fh.rowStrategy;
 
-import nl.fh.link.Link;
 import java.util.List;
+import nl.fh.node.ColHeaderNode;
+import nl.fh.node.RowHeaderNode;
 
 /**
  *
@@ -19,6 +20,6 @@ public interface RowStrategy {
      * @param chosenColumn a column header
      * @return a list of rows that connect to the chosen column 
      */
-    public List<Link> determineRows(Link chosenColumn);
+    public List<RowHeaderNode> determineRows(ColHeaderNode chosenColumn);
     
 }

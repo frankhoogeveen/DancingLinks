@@ -11,8 +11,10 @@ import java.util.Set;
 import java.util.Stack;
 import nl.fh.colStrategy.ColStrategy;
 import nl.fh.node.AbstractNode;
-import nl.fh.link.Link;
+import nl.fh.node.ColHeaderNode;
 import nl.fh.node.NodeTable;
+import nl.fh.node.RowHeaderNode;
+import nl.fh.node.TableHeaderNode;
 import nl.fh.rowStrategy.RowStrategy;
 import nl.fh.solutionProcessor.SolutionProcessor;
 
@@ -28,10 +30,14 @@ public class LinksSolver<R, C> {
 
     private final LinksMapper<R, C> mapper;
     private final NodeTable table;
+    private final Stack<RowHeaderNode> currentPartialSolution;
+    private final Stack<AbstractNode> hiddenNodes;
+    
     private final ColStrategy colStrategy;
     private final RowStrategy rowStrategy;
     private final SolutionProcessor solutionProcessor;
-    private final Stack<Link> currentPartialSolution;
+    private final AbstractNode marker;
+
 
     /**
      *
@@ -42,8 +48,10 @@ public class LinksSolver<R, C> {
     public LinksSolver(ColStrategy cs, RowStrategy rs, SolutionProcessor proc) {
         this.mapper = new LinksMapper<R, C>();
         this.table = new NodeTable();
-        this.currentPartialSolution = new Stack<Link>();
-
+        this.currentPartialSolution = new Stack<RowHeaderNode>();
+        this.hiddenNodes = new Stack<AbstractNode>();
+        this.marker = TableHeaderNode.getInstance();
+        
         this.colStrategy = cs;
         this.rowStrategy = rs;
         this.solutionProcessor = proc;
@@ -58,13 +66,13 @@ public class LinksSolver<R, C> {
      */
     public void addLink(R row , C col) {
         // create the header links if they do not yet exist
-        Link rowHeader = mapper.getRowHeader(row);
+        RowHeaderNode rowHeader = mapper.getRowHeader(row);
         if(rowHeader == null){
             rowHeader = table.addRow();
             mapper.addRow(row, rowHeader);
         }
         
-        Link colHeader = mapper.getColHeader(col);
+        ColHeaderNode colHeader = mapper.getColHeader(col);
         if(colHeader == null){
             colHeader = table.addCol();
             mapper.addCol(col, colHeader);
@@ -88,7 +96,7 @@ public class LinksSolver<R, C> {
         
         // reached a solution
         if(table.hasNoVisibleColumns()){
-            Set<Link> solutionSet= new HashSet(this.currentPartialSolution);
+            Set<RowHeaderNode> solutionSet= new HashSet(this.currentPartialSolution);
             solutionProcessor.process(solutionSet);
             return;
         }
@@ -99,62 +107,22 @@ public class LinksSolver<R, C> {
         }      
         
         // no conclusion yet, reduce the table and continue the search
-        Link chosenColumn = this.colStrategy.chooseColumn(table);
-        List<Link> rowList = this.rowStrategy.determineRows(chosenColumn);
-        Stack<Link> hiddenRowsCols = new Stack<Link>();
+        ColHeaderNode chosenColumn = this.colStrategy.chooseColumn(table);
+        List<RowHeaderNode> rowList = this.rowStrategy.determineRows(chosenColumn);
         
-        for(Link currentRow : rowList){
-            currentPartialSolution.push(currentRow);
+        for(RowHeaderNode chosenRow : rowList){
+            currentPartialSolution.push(chosenRow);
             
-            hideRowsAndColumns(currentRow, hiddenRowsCols);
+            hideRowsAndColumns(chosenRow);
             solve();
-            restoreRowsAndColumns(hiddenRowsCols);
-            
+            restoreRowsAndColumns();
+
             currentPartialSolution.pop();
         }
         
     }
 
-    /**
-     * 
-     * @param link 
-     * Hide all rows that overlap with the link and all columns 
-     * where this overlap takes place
-     */
-    void hideRowsAndColumns(Link link, Stack<Link> hiddenRowsCols) {
-        Link current = link.getRow().getRight();
-        while(!current.isRowHeader()){
-            Link next = current.getRight();
-            hideOverlappeningRows(current, hiddenRowsCols);
-            current.hideColumn();
-            hiddenRowsCols.push(current);
-            current = next;
-        }
-    }
-    
-    void hideOverlappeningRows(Link current, Stack<Link> hiddenRowsCols) {
-        Link current2 = current.getCol().getDown();
-        while(!current2.isColumnHeader()){
-            Link next = current2.getDown();
-            current2.hideRow();
-            hiddenRowsCols.push(current2);
-            current2 = next;
-        }
-    }
 
-    void restoreRowsAndColumns(Stack<Link> hiddenRowsCols) {
-        while(!hiddenRowsCols.empty()){
-            Link current = hiddenRowsCols.pop();
-            if(current.isRowHeader()){
-                current.restoreRow();
-            } else if(current.isColumnHeader()){
-                current.restoreColumn();
-            } else {
-                System.err.println("illegal state of the link stack");
-                System.exit(-2);
-            }
-        }
-    }
     
     @Override
     public String toString(){
@@ -176,5 +144,73 @@ public class LinksSolver<R, C> {
      */
     NodeTable getTable(){
         return this.table;
+    }
+
+    /**
+     * 
+     * @param node 
+     * 
+     *  hides the entire, currently visible row containing node
+     */
+    private void hideRow(AbstractNode node) {
+        // push a marker on the stack
+        this.hiddenNodes.push(marker);
+        
+        // decouple the vertical links of all nodes in the row
+        AbstractNode current = node;
+        do{
+            current.removeVertical();
+            this.hiddenNodes.push(current);
+            current = current.getRight();
+        } while(current != node);
+    }
+    
+        /**
+     * 
+     * @param node 
+     * 
+     *  hides the entire, currently visible row containing node
+     */
+    private void hideColumn(AbstractNode node) {
+        // push a marker on the stack
+        this.hiddenNodes.push(marker);
+        
+        // decouple the horizontal links of all nodes in the row
+        AbstractNode current = node;
+        do{
+            current.removeHorizontal();
+            this.hiddenNodes.push(current);
+            current = current.getDown();
+        } while(current != node);
+    }
+
+    /**
+     * is the inverse of hideRow()
+     */
+    private void restoreRow() {
+        AbstractNode node = this.hiddenNodes.pop();
+        while(node != marker){
+            node.restoreVertical();
+            node = this.hiddenNodes.pop();
+        }
+    }
+    
+     /**
+     * is the inverse of hideColumn()
+     */
+    private void restoreColumn() {
+        AbstractNode node = this.hiddenNodes.pop();
+        while(node != marker){
+            node.restoreHorizontal();
+            node = this.hiddenNodes.pop();
+        }
+    }
+
+    private void hideRowsAndColumns(RowHeaderNode chosenRow) {
+
+    }
+
+    private void restoreRowsAndColumns() {
+
     }
 }

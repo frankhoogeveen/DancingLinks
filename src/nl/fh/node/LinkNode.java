@@ -15,16 +15,13 @@ package nl.fh.node;
  */
 public class LinkNode extends AbstractNode {
     
-    RowHeaderNode row;
-    ColHeaderNode col;
-    
     @Override
-    ColHeader findColumn() {        
+    public ColHeader findColumn() {        
         return this.up.findColumn();
     }
 
     @Override
-    RowHeader findRow() {
+    public RowHeader findRow() {
         return this.left.findRow();
     }
  

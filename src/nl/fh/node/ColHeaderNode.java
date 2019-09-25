@@ -16,12 +16,12 @@ package nl.fh.node;
 public class ColHeaderNode extends AbstractNode implements ColHeader {
 
     @Override
-    ColHeader findColumn() {
+    public ColHeader findColumn() {
         return this;
     }
 
     @Override
-    RowHeader findRow() {
+    public RowHeader findRow() {
         return TableHeaderNode.getInstance();
     }
     

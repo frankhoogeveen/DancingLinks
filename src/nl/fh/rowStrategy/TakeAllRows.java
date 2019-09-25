@@ -5,9 +5,11 @@
  */
 package nl.fh.rowStrategy;
 
-import nl.fh.link.Link;
 import java.util.ArrayList;
 import java.util.List;
+import nl.fh.node.AbstractNode;
+import nl.fh.node.ColHeaderNode;
+import nl.fh.node.RowHeaderNode;
 
 /**
  *
@@ -21,17 +23,14 @@ public class TakeAllRows implements RowStrategy {
     public TakeAllRows() {
     }
 
+
     @Override
-    public List<Link> determineRows(Link chosenColumn) {
-        List<Link> result = new ArrayList<Link>();
+    public List<RowHeaderNode> determineRows(ColHeaderNode chosenColumn) {
+        List<RowHeaderNode> result = new ArrayList<RowHeaderNode>();
         
-        if(!chosenColumn.isColumnHeader()){
-            throw new IllegalArgumentException();
-        }
-        
-        Link current = chosenColumn.getDown();
-        while(!current.isColumnHeader()){
-            result.add(current.getRow());
+        AbstractNode current = chosenColumn.getDown();
+        while(current != chosenColumn){
+            result.add((RowHeaderNode) current.findRow());
             current = current.getDown();
         }
         

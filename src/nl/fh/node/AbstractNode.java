@@ -49,22 +49,22 @@ public abstract class AbstractNode {
     //
     /////////////////////////////////////////
     
-    void removeVertical(){
+    public void removeVertical(){
         this.up.down = this.down;
         this.down.up = this.up;
     }
     
-    void restoreVertical(){
+    public void restoreVertical(){
         this.up.down = this;
         this.down.up = this;
     }
 
-    void removeHorizontal(){  
+    public void removeHorizontal(){  
         this.left.right = this.right;
         this.right.left = this.left;
     }
     
-    void restoreHorizontal(){
+    public void restoreHorizontal(){
         this.left.right = this;
         this.right.left = this;
     }
@@ -168,13 +168,13 @@ public abstract class AbstractNode {
      *
      *  @return the header of the column in which this link is found
      */
-     abstract ColHeader findColumn();
+     public abstract ColHeader findColumn();
      
     /**
      *
      *  @return the header of the row in which this link is found
      */
-     abstract RowHeader findRow();
+     public abstract RowHeader findRow();
     
     /////////////////////////////////////////
     //

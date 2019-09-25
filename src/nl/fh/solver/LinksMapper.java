@@ -7,8 +7,11 @@ package nl.fh.solver;
 
 import java.util.HashMap;
 import java.util.Map;
-import nl.fh.link.Link;
+import nl.fh.node.AbstractNode;
+import nl.fh.node.ColHeaderNode;
 import nl.fh.node.NodeTable;
+import nl.fh.node.RowHeaderNode;
+import nl.fh.node.TableHeaderNode;
 
 /**
  *
@@ -18,52 +21,46 @@ import nl.fh.node.NodeTable;
  */
 public class LinksMapper<R, C> {
 
-    private final Map<R, Link> mapRowObjectToHeaderLink;
-    private final Map<C, Link> mapColObjectToHeaderLink;
+    private final Map<R, RowHeaderNode> mapRowObjectToHeaderLink;
+    private final Map<C, ColHeaderNode> mapColObjectToHeaderLink;
     
-    private final Map<Link, R> mapHeaderLinkToRowObject;
-    private final Map<Link, C> mapHeaderLinkToColObject;
+    private final Map<RowHeaderNode, R> mapHeaderLinkToRowObject;
+    private final Map<ColHeaderNode, C> mapHeaderLinkToColObject;
     
     public LinksMapper(){
-        this.mapColObjectToHeaderLink = new HashMap<C, Link>();
-        this.mapRowObjectToHeaderLink = new HashMap<R, Link>();
+        this.mapColObjectToHeaderLink = new HashMap<C, ColHeaderNode>();
+        this.mapRowObjectToHeaderLink = new HashMap<R, RowHeaderNode>();
         
-        this.mapHeaderLinkToRowObject = new HashMap<Link, R>();
-        this.mapHeaderLinkToColObject = new HashMap<Link, C>();
+        this.mapHeaderLinkToRowObject = new HashMap<RowHeaderNode, R>();
+        this.mapHeaderLinkToColObject = new HashMap<ColHeaderNode, C>();
     }
     
-    public void addRow(R row, Link header){
-        if(!header.isRowHeader()){
-            throw new IllegalArgumentException();
-        }
+    public void addRow(R row, RowHeaderNode header){
         
         mapHeaderLinkToRowObject.put(header, row);
         mapRowObjectToHeaderLink.put(row, header);
     }
     
-    public void addCol(C col, Link header){
-        if(!header.isColumnHeader()){
-            throw new IllegalArgumentException();
-        }
+    public void addCol(C col, ColHeaderNode header){
         
         mapHeaderLinkToColObject.put(header, col);
         mapColObjectToHeaderLink.put(col, header);
     }
     
     
-    public R getRowObject(Link link) {
-        return mapHeaderLinkToRowObject.get(link.getRow());
+    public R getRowObject(AbstractNode link) {
+        return mapHeaderLinkToRowObject.get(link.findRow());
     }
 
-    public C getColObject(Link link) {
-        return mapHeaderLinkToColObject.get(link.getCol());
+    public C getColObject(AbstractNode link) {
+        return mapHeaderLinkToColObject.get(link.findColumn());
     }
     
-    public Link getRowHeader(R row){
+    public RowHeaderNode getRowHeader(R row){
         return mapRowObjectToHeaderLink.get(row);
     }
     
-    public Link getColHeader(C col){
+    public ColHeaderNode getColHeader(C col){
         return mapColObjectToHeaderLink.get(col);
     }
     
@@ -74,20 +71,20 @@ public class LinksMapper<R, C> {
      * @param link
      * @return a string containing the headers that are linked
      */
-    public String shortDescriptionOf(Link link){
-        if(link.isTableHeader()){
+    public String shortDescriptionOf(AbstractNode link){
+        if(link instanceof TableHeaderNode){
             return "table header";
         }
         
-        if(link.isRowHeader()){
-            return "row header " + mapHeaderLinkToRowObject.get(link);
+        if(link instanceof RowHeaderNode){
+            return "row header " + mapHeaderLinkToRowObject.get((RowHeaderNode)link);
         }
         
-        if(link.isColumnHeader()){
-            return "col header " + mapHeaderLinkToColObject.get(link);
+        if(link instanceof ColHeaderNode){
+            return "col header " + mapHeaderLinkToColObject.get((ColHeaderNode)link);
         }
         
-        return mapHeaderLinkToRowObject.get(link.getRow()) + "/" + mapHeaderLinkToColObject.get(link.getCol());
+        return mapHeaderLinkToRowObject.get((RowHeaderNode)link.findRow()) + "/" + mapHeaderLinkToColObject.get((ColHeaderNode)link.findColumn());
     }
     
     /**
@@ -95,7 +92,7 @@ public class LinksMapper<R, C> {
      * @param link
      * @return a description of the neighbors of each link
      */
-    public String longDescriptionOf(Link link){
+    public String longDescriptionOf(AbstractNode link){
         StringBuilder sb = new StringBuilder();
         
         sb.append("---");
@@ -103,11 +100,11 @@ public class LinksMapper<R, C> {
         sb.append("---\n");
         
         sb.append("row   :");
-        sb.append(shortDescriptionOf(link.getRow()));
+        sb.append(shortDescriptionOf((AbstractNode) link.findRow()));
         sb.append("\n");
         
         sb.append("col   :");
-        sb.append(shortDescriptionOf(link.getCol()));
+        sb.append(shortDescriptionOf((AbstractNode)link.findColumn()));
         sb.append("\n");
         
         sb.append("left  :");
@@ -141,9 +138,9 @@ public class LinksMapper<R, C> {
                 
         sb.append("\n==============================\n");
         
-        Link currentRow = table.getTableHeader();
+        AbstractNode currentRow = table.getTableHeader();
         do{
-            Link currentCol = currentRow;
+            AbstractNode currentCol = currentRow;
             do{
                 sb.append(longDescriptionOf(currentCol));
                 

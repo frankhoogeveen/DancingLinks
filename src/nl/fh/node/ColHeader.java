@@ -12,5 +12,7 @@ package nl.fh.node;
  * This can be a proper ColHeaderNode or the TableHeader 
  */
 public interface ColHeader {
+
+    public AbstractNode getDown();
     
 }
