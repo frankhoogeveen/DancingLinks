@@ -8,7 +8,7 @@ package nl.fh.solver;
 import java.util.HashMap;
 import java.util.Map;
 import nl.fh.link.Link;
-import nl.fh.link.LinksTable;
+import nl.fh.node.NodeTable;
 
 /**
  *
@@ -136,7 +136,7 @@ public class LinksMapper<R, C> {
      * @param table
      * @return a elaborate description of all links
      */
-    public String longDescriptionOf(LinksTable table){
+    public String longDescriptionOf(NodeTable table){
         StringBuilder sb = new StringBuilder();
                 
         sb.append("\n==============================\n");

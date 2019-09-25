@@ -5,8 +5,8 @@
  */
 package nl.fh.colStrategy;
 
-import nl.fh.link.LinksTable;
-import nl.fh.link.Link;
+import nl.fh.node.NodeTable;
+import nl.fh.node.RowHeaderNode;
 
 /**
  *
@@ -18,6 +18,6 @@ public interface ColStrategy {
      * @param table
      * @return the next column that will be considered
      */
-    public Link chooseColumn(LinksTable table);
+    public RowHeaderNode chooseColumn(NodeTable table);
     
 }

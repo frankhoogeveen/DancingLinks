@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.link;
+package nl.fh.node;
 
 
 
@@ -13,15 +13,18 @@ package nl.fh.link;
  * 
  * @author frank
  */
-public class ConcreteLink extends AbstractLink {
-
+public class LinkNode extends AbstractNode {
+    
+    RowHeaderNode row;
+    ColHeaderNode col;
+    
     @Override
-    ColHeaderLink findColumn() {
+    ColHeader findColumn() {        
         return this.up.findColumn();
     }
 
     @Override
-    RowHeaderLink findRow() {
+    RowHeader findRow() {
         return this.left.findRow();
     }
  

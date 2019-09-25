@@ -5,8 +5,8 @@
  */
 package nl.fh.colStrategy;
 
-import nl.fh.link.LinksTable;
-import nl.fh.link.Link;
+import nl.fh.node.NodeTable;
+import nl.fh.node.RowHeaderNode;
 
 /**
  *
@@ -21,13 +21,13 @@ public class TakeFirstColumnAvailable implements ColStrategy {
     }
 
     @Override
-    public Link chooseColumn(LinksTable table) {
+    public RowHeaderNode chooseColumn(NodeTable table) {
         
         if(table.hasNoVisibleColumns()){
             throw new IllegalArgumentException();
         }
         
-        return table.getTableHeader().getRight();
+        return (RowHeaderNode) table.getTableHeader().getRight();
     }
     
 }

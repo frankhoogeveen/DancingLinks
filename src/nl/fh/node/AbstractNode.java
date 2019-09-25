@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.link;
+package nl.fh.node;
 
 import nl.fh.solver.LinksSolver;
 
@@ -14,12 +14,12 @@ import nl.fh.solver.LinksSolver;
  * 
  * @author frank
  */
-public abstract class AbstractLink {
+public abstract class AbstractNode {
     // the nearest neighbours
-    AbstractLink left;
-    AbstractLink right;
-    AbstractLink up;
-    AbstractLink down;
+    AbstractNode left;
+    AbstractNode right;
+    AbstractNode up;
+    AbstractNode down;
     
     // the context in which the links are used
     // this enables human readable prints of this link
@@ -32,7 +32,7 @@ public abstract class AbstractLink {
      * The context determines the formatting of this link
      */
     public static void setContext(LinksSolver context) {
-        AbstractLink.context = context;
+        AbstractNode.context = context;
     }
     
     @Override
@@ -82,7 +82,7 @@ public abstract class AbstractLink {
      * 
      * @param other 
      */
-    void insertLeft(AbstractLink other){
+    void insertLeft(AbstractNode other){
         other.left = this.left;
         other.right = this;
         
@@ -94,7 +94,7 @@ public abstract class AbstractLink {
      * Insert an other link to the right of this
      * @param other 
      */
-    void insertRight(AbstractLink other){
+    void insertRight(AbstractNode other){
         other.right = this.right;
         other.left = this;
         
@@ -106,7 +106,7 @@ public abstract class AbstractLink {
      * Insert an other link above this
      * @param other 
      */
-    void insertAbove(AbstractLink other){
+    void insertAbove(AbstractNode other){
         other.up =this.up;
         other.down = this;
         
@@ -118,7 +118,7 @@ public abstract class AbstractLink {
      * Insert another link below this
      * @param other 
      */
-    void insertBelow(AbstractLink other){
+    void insertBelow(AbstractNode other){
         other.down = this.down;
         other.up = this;
         
@@ -132,35 +132,35 @@ public abstract class AbstractLink {
     //
     /////////////////////////////////////////
     
-    public AbstractLink getLeft() {
+    public AbstractNode getLeft() {
         return left;
     }
 
-    void setLeft(AbstractLink left) {
+    void setLeft(AbstractNode left) {
         this.left = left;
     }
 
-    public AbstractLink getRight() {
+    public AbstractNode getRight() {
         return right;
     }
 
-    void setRight(AbstractLink right) {
+    void setRight(AbstractNode right) {
         this.right = right;
     }
 
-    public AbstractLink getUp() {
+    public AbstractNode getUp() {
         return up;
     }
 
-    void setUp(AbstractLink up) {
+    void setUp(AbstractNode up) {
         this.up = up;
     }
 
-    public AbstractLink getDown() {
+    public AbstractNode getDown() {
         return down;
     }
 
-    void setDown(AbstractLink down) {
+    void setDown(AbstractNode down) {
         this.down = down;
     }    
 
@@ -168,13 +168,13 @@ public abstract class AbstractLink {
      *
      *  @return the header of the column in which this link is found
      */
-     abstract ColHeaderLink findColumn();
+     abstract ColHeader findColumn();
      
     /**
      *
      *  @return the header of the row in which this link is found
      */
-     abstract RowHeaderLink findRow();
+     abstract RowHeader findRow();
     
     /////////////////////////////////////////
     //
@@ -185,55 +185,58 @@ public abstract class AbstractLink {
      *  @param n the maximum number of steps before we should return to this
      *  throws an exception if the link is not circular in all directions
      */
-    void checkCircularity(long n) throws Exception{
+    void checkNode(long n) throws Exception{
         checkUp(n);
         checkDown(n);
         checkLeft(n);
         checkRight(n);
+        
+        checkReflexivity();
+        checkForNullNeighbor();
     }
 
     private void checkUp(long n) throws Exception {
-        AbstractLink current = this;
+        AbstractNode current = this;
         for(long m = 0; m < n; m++){
             current = current.up;
             if(current == this){
                 return;
             }
         }
-        throw new Exception("non circular link");
+        throw new Exception("non circular link" + this.toString());
     }
     
     private void checkDown(long n) throws Exception {
-        AbstractLink current = this;
+        AbstractNode current = this;
         for(long m = 0; m < n; m++){
             current = current.down;
             if(current == this){
                 return;
             }
         }
-        throw new Exception("non circular link");
+        throw new Exception("non circular link" + this.toString());
     }
     
     private void checkLeft(long n) throws Exception {
-        AbstractLink current = this;
+        AbstractNode current = this;
         for(long m = 0; m < n; m++){
             current = current.left;
             if(current == this){
                 return;
             }
         }
-        throw new Exception("non circular link");
+        throw new Exception("non circular link" + this.toString());
     }
     
     private void checkRight(long n) throws Exception {
-        AbstractLink current = this;
+        AbstractNode current = this;
         for(long m = 0; m < n; m++){
             current = current.right;
             if(current == this){
                 return;
             }
         }
-        throw new Exception("non circular link");
+        throw new Exception("non circular link" + this.toString());
     }
     
     void checkReflexivity() throws Exception{
@@ -243,14 +246,11 @@ public abstract class AbstractLink {
         ok &= (this == this.left.right);
         ok &= (this == this.right.left);
         if(!ok){
-            throw new Exception("non reflexive link");
+            throw new Exception("non reflexive link" + this.toString());
         }
     }
-    
-    /**
-     * @return true if one of the fields of this Link is null
-     */
-    public boolean hasNullNeighbor(){
+
+     void checkForNullNeighbor() throws Exception{
         boolean foundNull = false;
         
         foundNull |= (left == null);
@@ -258,7 +258,9 @@ public abstract class AbstractLink {
         foundNull |= (up == null);
         foundNull |= (down == null);
         
-        return foundNull;
+        if(foundNull){
+            throw new Exception("Node has null neigbour" + this.toString());
+        }
     }
     
 }

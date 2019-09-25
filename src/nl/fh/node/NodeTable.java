@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.link;
+package nl.fh.node;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,23 +14,20 @@ import java.util.Set;
  * 
  * @author frank
  */
-public class LinksTable {
+public class NodeTable {
     
-    private final TableHeaderLink tableHeader;
+    private final TableHeaderNode tableHeader;
 
-    public LinksTable(){
-        tableHeader = new TableHeaderLink();
-        tableHeader.up = tableHeader;
-        tableHeader.down = tableHeader;
-        tableHeader.left = tableHeader;
-        tableHeader.right = tableHeader;
+    public NodeTable(){
+        TableHeaderNode.reset();
+        tableHeader = TableHeaderNode.getInstance();
     }
 
     /**
      * 
-     * @return the header link of this table
+     * @return the header newLink of this table
      */
-    public TableHeaderLink getTableHeader() {
+    public TableHeaderNode getTableHeader() {
         return tableHeader;
     }
     
@@ -39,8 +36,8 @@ public class LinksTable {
      * 
      * @return the row header of the new row
      */
-    public RowHeaderLink addRow() {
-        RowHeaderLink rowHeader = new RowHeaderLink();
+    public RowHeaderNode addRow() {
+        RowHeaderNode rowHeader = new RowHeaderNode();
         
         rowHeader.left = rowHeader;
         rowHeader.right = rowHeader;
@@ -55,9 +52,9 @@ public class LinksTable {
      * 
      * @return a new column header
      */
-    public ColHeaderLink addCol() {
+    public ColHeaderNode addCol() {
         
-        ColHeaderLink colHeader = new ColHeaderLink();
+        ColHeaderNode colHeader = new ColHeaderNode();
         
         colHeader.up = colHeader;
         colHeader.down = colHeader;
@@ -68,89 +65,98 @@ public class LinksTable {
     }
 
     /**
-     * Add a link between a row and a column. 
+     * Add a newLink between a row and a column. 
      * 
-     * Adding of a link is idempotent, twice adding a link has the same effect
-     * as adding the link once.
+     * Adding of a newLink is idempotent, twice adding a newLink has the same effect
+ as adding the newLink once.
      * 
      * @param rowHeader header of the row
      * @param colHeader header of the column
-     * @return the link between the two 
+     * @return the newLink between the two 
      */
-    public ConcreteLink addLink(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
+    public LinkNode addLink(RowHeaderNode rowHeader, ColHeaderNode colHeader) {
         
         // if they are already linked, do nothing
-        ConcreteLink existing = connection(rowHeader, colHeader);
+        AbstractNode existing = connection(rowHeader, colHeader);
         if(existing != null){
-            return existing;
+            return (LinkNode) existing;
         }
 
-        // other wise a new link has to be inserted at the right spot
-        ConcreteLink link = new ConcreteLink();
+        // otherwise a new newLink has to be inserted at the right spot
+        LinkNode newLink = new LinkNode();
         
         // find the left neighbour
-        AbstractLink current = colHeader;
-        ConcreteLink currentLink;
+        AbstractNode currentColumn = colHeader;
+        AbstractNode connectingLink;
         do{
-            current = current.left;
-            currentLink =  current.getLinkInColumn(rowHeader);
-        } while(currentLink == null);
-        currentLink.insertRight(link);
+            currentColumn =  currentColumn.left;
+            connectingLink =  connection(rowHeader, (ColHeader) currentColumn);
+        } while(connectingLink == null);
+        connectingLink.insertRight(newLink);
         
         //find the right neighbour
-        current = colHeader;
+        currentColumn = colHeader;
         do{
-            current = current.right;
-            currentLink =  current.getLinkInColumn(rowHeader);
-        } while(currentLink == null);
+            currentColumn = (AbstractNode) currentColumn.right;
+            connectingLink =  connection(rowHeader, (ColHeader) currentColumn);
+        } while(connectingLink == null);
         
-        //avoid duplicate insertion when adding the first link in the row
-        if(currentLink.left != link){
-            currentLink.insertLeft(link);
+        //avoid duplicate insertion when adding the first newLink in the row
+        if(connectingLink.left != newLink){
+            connectingLink.insertLeft(newLink);
         }
         
         //find the top neighbour
-        RowHeaderLink currentRow = rowHeader;
+        AbstractNode currentRow = rowHeader;
         do{
             currentRow = currentRow.up;
-            currentLink =  currentRow.getLinkInRow(colHeader);
-        } while(currentLink == null);
-        currentLink.insertBelow(link);
+            connectingLink =  connection((RowHeader) currentRow, colHeader);
+        } while(connectingLink == null);
+        connectingLink.insertBelow(newLink);
         
         // find the bottom neighbour
         currentRow = rowHeader;
         do{
-            currentRow = currentRow.down;
-            currentLink =  currentRow.getLinkInRow(colHeader);
-        } while(currentLink == null);
+            currentRow =  currentRow.down;
+            connectingLink =  connection((RowHeader) currentRow, colHeader);
+        } while(connectingLink == null);
         
-        //avoid duplicate insertion when adding the first link in the column
-        if(currentLink.up != link){
-            currentLink.insertAbove(link);
+        //avoid duplicate insertion when adding the first newLink in the column
+        if(connectingLink.up != newLink){
+            connectingLink.insertAbove(newLink);
         }
         
-        return link;
+        return newLink;
     }
 
-    private ConcreteLink connection(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
-        AbstractLink current = rowHeader.right;
-        while(current != rowHeader){
-            ConcreteLink concrete = (ConcreteLink) current;
-            if(concrete.findColumn() == colHeader){
-                return concrete;
+    /**
+     * 
+     * @param rowHeader
+     * @param colHeader
+     * @return  the node linking row and column
+     * returns null, if there is no link
+     */
+    private AbstractNode connection(RowHeader rowHeader, ColHeader colHeader) {
+        
+        AbstractNode current = (AbstractNode) rowHeader;
+        do{
+            if(current.findColumn() == colHeader){
+                return current;
             }
-        }
+            current = current.getRight();
+        }while(current != rowHeader);
+        
         return null;
     }
     
     /**
-     * 
+     * 1
      * @param rowHeader
      * @param colHeader
      * @return true if the row and column, as defined by their headers, are linked
      *         otherwise false is returned
      */
-    public boolean areLinked(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
+    boolean areLinked(RowHeaderNode rowHeader, ColHeaderNode colHeader) {
         return connection(rowHeader, colHeader) != null;
     }
 
@@ -162,7 +168,7 @@ public class LinksTable {
         return (tableHeader.right == tableHeader);
     }
     
-        /**
+    /**
      * 
      * @return true if this table has no rows visible
      */
@@ -176,7 +182,7 @@ public class LinksTable {
      * @return true if all links are circular
      */
     public boolean isEveryLinkGood(long n) {
-        Set<AbstractLink> alreadyChecked = new HashSet<AbstractLink>();
+        Set<AbstractNode> alreadyChecked = new HashSet<AbstractNode>();
         try {
             checkRecursively(tableHeader, n, alreadyChecked);
         } catch (Exception ex) {
@@ -186,13 +192,12 @@ public class LinksTable {
         return true;
     }
 
-    private void checkRecursively(AbstractLink link, long n,Set<AbstractLink> alreadyChecked) throws Exception {
+    private void checkRecursively(AbstractNode link, long n,Set<AbstractNode> alreadyChecked) throws Exception {
         if(alreadyChecked.contains(link)){
             return;
         }
         
-        link.checkReflexivity();
-        link.checkCircularity(n);
+        link.checkNode(n);
         
         alreadyChecked.add(link);
         

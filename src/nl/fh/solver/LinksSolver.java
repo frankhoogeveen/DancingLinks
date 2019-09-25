@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import nl.fh.colStrategy.ColStrategy;
-import nl.fh.link.AbstractLink;
+import nl.fh.node.AbstractNode;
 import nl.fh.link.Link;
-import nl.fh.link.LinksTable;
+import nl.fh.node.NodeTable;
 import nl.fh.rowStrategy.RowStrategy;
 import nl.fh.solutionProcessor.SolutionProcessor;
 
@@ -27,7 +27,7 @@ import nl.fh.solutionProcessor.SolutionProcessor;
 public class LinksSolver<R, C> {
 
     private final LinksMapper<R, C> mapper;
-    private final LinksTable table;
+    private final NodeTable table;
     private final ColStrategy colStrategy;
     private final RowStrategy rowStrategy;
     private final SolutionProcessor solutionProcessor;
@@ -41,7 +41,7 @@ public class LinksSolver<R, C> {
      */
     public LinksSolver(ColStrategy cs, RowStrategy rs, SolutionProcessor proc) {
         this.mapper = new LinksMapper<R, C>();
-        this.table = new LinksTable();
+        this.table = new NodeTable();
         this.currentPartialSolution = new Stack<Link>();
 
         this.colStrategy = cs;
@@ -166,7 +166,7 @@ public class LinksSolver<R, C> {
      * @param link
      * @return the link formatted using the embedded mapper
      */
-    public String format(AbstractLink link){
+    public String format(AbstractNode link){
         return this.mapper.shortDescriptionOf(link);
     }
     
@@ -174,7 +174,7 @@ public class LinksSolver<R, C> {
      * 
      * @return  the table for testing and debugging purposes
      */
-    LinksTable getTable(){
+    NodeTable getTable(){
         return this.table;
     }
 }

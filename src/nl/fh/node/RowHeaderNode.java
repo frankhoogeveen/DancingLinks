@@ -3,26 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.link;
+package nl.fh.node;
 
 
 
 /**
  *
- *  Link that represents the header of a column
+ *  Link that represents the header of a row
  * 
  * @author frank
  */
-public class ColHeaderLink extends AbstractLink {
+public class RowHeaderNode extends AbstractNode implements RowHeader {
 
     @Override
-    ColHeaderLink findColumn() {
+    ColHeader findColumn() {
+        return TableHeaderNode.getInstance();
+    }
+
+    @Override
+    RowHeader findRow() {
         return this;
     }
-
-    @Override
-    RowHeaderLink findRow() {
-        return this.up.findRow();
-    }
-    
 }
