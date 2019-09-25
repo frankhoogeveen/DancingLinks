@@ -16,12 +16,10 @@ import java.util.Set;
  */
 public class LinksTable {
     
-    private final Link tableHeader;
+    private final TableHeaderLink tableHeader;
 
     public LinksTable(){
-        tableHeader = new Link();
-        tableHeader.col = tableHeader;
-        tableHeader.row = tableHeader;
+        tableHeader = new TableHeaderLink();
         tableHeader.up = tableHeader;
         tableHeader.down = tableHeader;
         tableHeader.left = tableHeader;
@@ -32,7 +30,7 @@ public class LinksTable {
      * 
      * @return the header link of this table
      */
-    public Link getTableHeader() {
+    public TableHeaderLink getTableHeader() {
         return tableHeader;
     }
     
@@ -41,11 +39,8 @@ public class LinksTable {
      * 
      * @return the row header of the new row
      */
-    public Link addRow() {
-        Link rowHeader = new Link();
-         
-        rowHeader.row = rowHeader;   
-        rowHeader.col = tableHeader;
+    public RowHeaderLink addRow() {
+        RowHeaderLink rowHeader = new RowHeaderLink();
         
         rowHeader.left = rowHeader;
         rowHeader.right = rowHeader;
@@ -60,12 +55,9 @@ public class LinksTable {
      * 
      * @return a new column header
      */
-    public Link addCol() {
+    public ColHeaderLink addCol() {
         
-        Link colHeader = new Link();
-        
-        colHeader.row = tableHeader;
-        colHeader.col = colHeader;
+        ColHeaderLink colHeader = new ColHeaderLink();
         
         colHeader.up = colHeader;
         colHeader.down = colHeader;
@@ -85,35 +77,31 @@ public class LinksTable {
      * @param colHeader header of the column
      * @return the link between the two 
      */
-    public Link addLink(Link rowHeader, Link colHeader) {
-        
-        if(!rowHeader.isRowHeader() || !colHeader.isColumnHeader()){
-            throw new IllegalArgumentException();
-        }
+    public ConcreteLink addLink(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
         
         // if they are already linked, do nothing
-        Link existing = rowHeader.getLinkInRow(colHeader);
+        ConcreteLink existing = connection(rowHeader, colHeader);
         if(existing != null){
             return existing;
         }
 
         // other wise a new link has to be inserted at the right spot
-        Link link = new Link();
+        ConcreteLink link = new ConcreteLink();
         
         // find the left neighbour
-        Link currentCol = colHeader;
-        Link currentLink;
+        AbstractLink current = colHeader;
+        ConcreteLink currentLink;
         do{
-            currentCol = currentCol.left;
-            currentLink =  currentCol.getLinkInColumn(rowHeader);
+            current = current.left;
+            currentLink =  current.getLinkInColumn(rowHeader);
         } while(currentLink == null);
         currentLink.insertRight(link);
         
         //find the right neighbour
-        currentCol = colHeader;
+        current = colHeader;
         do{
-            currentCol = currentCol.right;
-            currentLink =  currentCol.getLinkInColumn(rowHeader);
+            current = current.right;
+            currentLink =  current.getLinkInColumn(rowHeader);
         } while(currentLink == null);
         
         //avoid duplicate insertion when adding the first link in the row
@@ -122,7 +110,7 @@ public class LinksTable {
         }
         
         //find the top neighbour
-        Link currentRow = rowHeader;
+        RowHeaderLink currentRow = rowHeader;
         do{
             currentRow = currentRow.up;
             currentLink =  currentRow.getLinkInRow(colHeader);
@@ -144,6 +132,17 @@ public class LinksTable {
         return link;
     }
 
+    private ConcreteLink connection(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
+        AbstractLink current = rowHeader.right;
+        while(current != rowHeader){
+            ConcreteLink concrete = (ConcreteLink) current;
+            if(concrete.findColumn() == colHeader){
+                return concrete;
+            }
+        }
+        return null;
+    }
+    
     /**
      * 
      * @param rowHeader
@@ -151,15 +150,8 @@ public class LinksTable {
      * @return true if the row and column, as defined by their headers, are linked
      *         otherwise false is returned
      */
-    public boolean areLinked(Link rowHeader, Link colHeader) {
-        
-        if((rowHeader == null) || (colHeader == null)){
-            return false;
-        }
-        
-        // depending on the dimensions of the rows and columns,
-        // it might be faster to use isLinkedInColumn
-        return rowHeader.isLinkedInRow(colHeader);
+    public boolean areLinked(RowHeaderLink rowHeader, ColHeaderLink colHeader) {
+        return connection(rowHeader, colHeader) != null;
     }
 
     /**
@@ -184,7 +176,7 @@ public class LinksTable {
      * @return true if all links are circular
      */
     public boolean isEveryLinkGood(long n) {
-        Set<Link> alreadyChecked = new HashSet<Link>();
+        Set<AbstractLink> alreadyChecked = new HashSet<AbstractLink>();
         try {
             checkRecursively(tableHeader, n, alreadyChecked);
         } catch (Exception ex) {
@@ -194,20 +186,19 @@ public class LinksTable {
         return true;
     }
 
-    private void checkRecursively(Link link, long n,Set<Link> alreadyChecked) throws Exception {
+    private void checkRecursively(AbstractLink link, long n,Set<AbstractLink> alreadyChecked) throws Exception {
         if(alreadyChecked.contains(link)){
             return;
         }
         
         link.checkReflexivity();
-        link.checkIdempotency();
         link.checkCircularity(n);
         
         alreadyChecked.add(link);
         
-        checkRecursively(tableHeader.up, n, alreadyChecked);
-        checkRecursively(tableHeader.down, n, alreadyChecked);
-        checkRecursively(tableHeader.left, n, alreadyChecked);
-        checkRecursively(tableHeader.right, n, alreadyChecked);
+        checkRecursively(link.up, n, alreadyChecked);
+        checkRecursively(link.down, n, alreadyChecked);
+        checkRecursively(link.left, n, alreadyChecked);
+        checkRecursively(link.right, n, alreadyChecked);
     }
 }

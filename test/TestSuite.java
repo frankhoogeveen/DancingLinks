@@ -6,9 +6,9 @@
  * and open the template in the editor.
  */
 
-import nl.fh.dancing.SetupTest;
-import nl.fh.dancing.HideRestoreTest;
-import nl.fh.dancing.SolverTest;
+import nl.fh.solver.SetupTest;
+import nl.fh.link.HideRestoreTest;
+import nl.fh.solver.SolverTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

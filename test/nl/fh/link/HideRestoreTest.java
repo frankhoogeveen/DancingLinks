@@ -1,7 +1,5 @@
-package nl.fh.dancing;
+package nl.fh.link;
 
-import nl.fh.link.LinksTable;
-import nl.fh.link.Link;
 import static org.junit.Assert.*;
 import org.junit.Test;
 

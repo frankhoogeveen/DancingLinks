@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.dancing;
+package nl.fh.solver;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import nl.fh.colStrategy.ColStrategy;
+import nl.fh.link.AbstractLink;
 import nl.fh.link.Link;
 import nl.fh.link.LinksTable;
 import nl.fh.rowStrategy.RowStrategy;
@@ -42,13 +43,19 @@ public class LinksSolver<R, C> {
         this.mapper = new LinksMapper<R, C>();
         this.table = new LinksTable();
         this.currentPartialSolution = new Stack<Link>();
-        
+
         this.colStrategy = cs;
         this.rowStrategy = rs;
         this.solutionProcessor = proc;
         
     }
 
+    /**
+     *  Add a link between a row and a column object
+     * 
+     * @param row
+     * @param col 
+     */
     public void addLink(R row , C col) {
         // create the header links if they do not yet exist
         Link rowHeader = mapper.getRowHeader(row);
@@ -73,8 +80,6 @@ public class LinksSolver<R, C> {
      * 
      */
     public void solve(){
-        //TODO remove
-        System.out.println(this);
         
         // if we have enough solutions (or time has run out), return
         if(solutionProcessor.isSatisfied()){
@@ -96,83 +101,58 @@ public class LinksSolver<R, C> {
         // no conclusion yet, reduce the table and continue the search
         Link chosenColumn = this.colStrategy.chooseColumn(table);
         List<Link> rowList = this.rowStrategy.determineRows(chosenColumn);
-        
+        Stack<Link> hiddenRowsCols = new Stack<Link>();
         
         for(Link currentRow : rowList){
             currentPartialSolution.push(currentRow);
             
-            hideRowsAndColumns(currentRow);
+            hideRowsAndColumns(currentRow, hiddenRowsCols);
             solve();
-            restoreRowsAndColumns(currentRow);
+            restoreRowsAndColumns(hiddenRowsCols);
             
             currentPartialSolution.pop();
         }
         
     }
 
-    private void hideRowsAndColumns(Link currentRow) {
-        Link rowHeader = currentRow.getRow();
-        Link current = rowHeader.getRight();
-        while(current != rowHeader){
-
-            hideOverlappingRows(current);
-            
-            System.out.println(this);
-            System.out.println("current " + current.toString()); //TODO remove
-            
-            current.getCol().hideColumn();
-            
-            System.out.println(this);
-            System.out.println("current " + current.toString()); //TODO remove
-            
-            
-            current = current.getRight(); 
+    /**
+     * 
+     * @param link 
+     * Hide all rows that overlap with the link and all columns 
+     * where this overlap takes place
+     */
+    void hideRowsAndColumns(Link link, Stack<Link> hiddenRowsCols) {
+        Link current = link.getRow().getRight();
+        while(!current.isRowHeader()){
+            Link next = current.getRight();
+            hideOverlappeningRows(current, hiddenRowsCols);
+            current.hideColumn();
+            hiddenRowsCols.push(current);
+            current = next;
+        }
+    }
+    
+    void hideOverlappeningRows(Link current, Stack<Link> hiddenRowsCols) {
+        Link current2 = current.getCol().getDown();
+        while(!current2.isColumnHeader()){
+            Link next = current2.getDown();
+            current2.hideRow();
+            hiddenRowsCols.push(current2);
+            current2 = next;
         }
     }
 
-    private void restoreRowsAndColumns(Link currentRow) {
-        Link rowHeader = currentRow.getRow();
-        Link current = rowHeader.getLeft();
-        while(current != rowHeader){
-            restoreOverlappingRows(current);
-            
-            current.getCol().restoreColumn();
-            current = current.getLeft(); 
-        }
-    }
-
-    private void hideOverlappingRows(Link link) {
-        Link colHeader = link.getCol();
-        Link current = colHeader.getDown();
-        
-        System.out.println("--------------------------------");
-        System.out.println(this.mapper.shortDescriptionOf(link));
-        System.out.println(this.mapper.shortDescriptionOf(colHeader));
-        System.out.println(this.mapper.shortDescriptionOf(current));
-        System.out.print("Table is good: ");
-        System.out.println(this.table.isEveryLinkGood(10));  //TODO remove prints
-        
-        while(current != colHeader){
-            current.hideRow();
-            
-            System.out.println("--------------------------------");
-            System.out.println(this.mapper.shortDescriptionOf(current));
-            System.out.print("Table is good: ");
-            System.out.println(this.table.isEveryLinkGood(10));  //TODO remove prints   
-            
-            current = current.getDown();
-        }
-        
-        System.out.println(this.mapper.shortDescriptionOf(current));
-        System.out.println(this.table.isEveryLinkGood(10));  //TODO remove prints
-    }
-
-    private void restoreOverlappingRows(Link link) {
-        Link colHeader = link.getCol();
-        Link current = colHeader.getUp();
-        while(current != colHeader){
-            current.restoreRow();
-            current = current.getUp();
+    void restoreRowsAndColumns(Stack<Link> hiddenRowsCols) {
+        while(!hiddenRowsCols.empty()){
+            Link current = hiddenRowsCols.pop();
+            if(current.isRowHeader()){
+                current.restoreRow();
+            } else if(current.isColumnHeader()){
+                current.restoreColumn();
+            } else {
+                System.err.println("illegal state of the link stack");
+                System.exit(-2);
+            }
         }
     }
     
@@ -186,8 +166,15 @@ public class LinksSolver<R, C> {
      * @param link
      * @return the link formatted using the embedded mapper
      */
-    public String format(Link link){
+    public String format(AbstractLink link){
         return this.mapper.shortDescriptionOf(link);
     }
     
+    /**
+     * 
+     * @return  the table for testing and debugging purposes
+     */
+    LinksTable getTable(){
+        return this.table;
+    }
 }

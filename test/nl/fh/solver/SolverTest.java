@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.dancing;
+package nl.fh.solver
+        ;
 
+import nl.fh.solver.LinksSolver;
 import java.util.List;
 import java.util.Set;
 import nl.fh.solutionProcessor.SolutionStore;
@@ -13,7 +15,6 @@ import nl.fh.colStrategy.ColStrategy;
 import nl.fh.link.Link;
 import nl.fh.rowStrategy.TakeAllRows;
 import nl.fh.rowStrategy.RowStrategy;
-import nl.fh.solutionProcessor.SolutionDisplay;
 import nl.fh.solutionProcessor.SolutionProcessor;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -126,6 +127,28 @@ public class SolverTest {
         SolutionProcessor proc = new SolutionStore();
         
         LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs, proc);
+        Link.setContext(solver);
+              
+        solver.addLink("RB", "C2");
+        solver.addLink("RC", "C1");
+        
+        solver.solve();
+
+        assertEquals(1, proc.getCount());
+    }
+    
+    /**
+     * Test of the DLX algorithm on a very small coincendence matrix
+     */
+    @Test
+    public void testSmallCoincedenceMatrix_6()  {
+        
+        ColStrategy cs = new TakeFirstColumnAvailable();
+        RowStrategy rs = new TakeAllRows();
+        SolutionProcessor proc = new SolutionStore();
+        
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs, proc);
+        Link.setContext(solver);
         
         solver.addLink("RA", "C1");
         solver.addLink("RA", "C2");      

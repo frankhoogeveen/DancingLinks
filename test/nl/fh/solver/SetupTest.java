@@ -1,4 +1,4 @@
-package nl.fh.dancing;
+package nl.fh.solver;
 
 import nl.fh.link.LinksTable;
 import nl.fh.link.Link;
