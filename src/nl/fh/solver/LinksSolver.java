@@ -152,7 +152,7 @@ public class LinksSolver<R, C> {
      * 
      *  hides the entire, currently visible row containing node
      */
-    private void hideRow(AbstractNode node) {
+    void hideRow(AbstractNode node) {
         // push a marker on the stack
         this.hiddenNodes.push(marker);
         
@@ -171,7 +171,7 @@ public class LinksSolver<R, C> {
      * 
      *  hides the entire, currently visible row containing node
      */
-    private void hideColumn(AbstractNode node) {
+    void hideColumn(AbstractNode node) {
         // push a marker on the stack
         this.hiddenNodes.push(marker);
         
