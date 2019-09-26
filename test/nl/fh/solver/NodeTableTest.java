@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.node;
+package nl.fh.solver;
 
+import nl.fh.solver.NodeTable;
+import nl.fh.solver.Node;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -18,26 +20,16 @@ public class NodeTableTest {
     }
 
     /**
-     * Test of getTableHeader method, of class NodeTable.
-     */
-    @Test
-    public void testGetTableHeader() {
-        NodeTable table = new NodeTable();
-        TableHeaderNode expResult = TableHeaderNode.getInstance();
-        TableHeaderNode result = table.getTableHeader();
-        assertEquals(expResult, result);
-    }
-
-    /**
      * Test of addRow method, of class NodeTable.
      */
     @Test
     public void testAddRow() {
         NodeTable table = new NodeTable();
-        RowHeaderNode row = table.addRow();
+        Node row = table.addRow();
+        Node head = table.tableHeader;
         
-        assertEquals(TableHeaderNode.getInstance(), row.up);
-        assertEquals(TableHeaderNode.getInstance(), row.down);
+        assertEquals(head, row.up);
+        assertEquals(head, row.down);
         assertEquals(row, row.left);
         assertEquals(row, row.right);
     }
@@ -48,10 +40,11 @@ public class NodeTableTest {
     @Test
     public void testAddCol() {
         NodeTable table = new NodeTable();
-        ColHeaderNode col = table.addCol();
+        Node col = table.addCol();
+        Node head = table.tableHeader;
         
-        assertEquals(TableHeaderNode.getInstance(), col.left);
-        assertEquals(TableHeaderNode.getInstance(), col.right);
+        assertEquals(head, col.left);
+        assertEquals(head, col.right);
         assertEquals(col, col.up);
         assertEquals(col, col.down);
     }
@@ -63,13 +56,13 @@ public class NodeTableTest {
     public void testFindRowColTest() {
         NodeTable table = new NodeTable();
         
-        TableHeaderNode head = table.getTableHeader();
-        RowHeaderNode row = table.addRow();
-        ColHeaderNode col = table.addCol();
-        LinkNode link = table.addLink(row, col);
+        Node head = table.tableHeader;
+        Node row = table.addRow();
+        Node col = table.addCol();
+        Node link = table.addLink(row, col);
         
-        assertEquals(row, link.findRow());
-        assertEquals(col, link.findColumn());
+        assertEquals(row, link.row);
+        assertEquals(col, link.col);
         
     }
     
@@ -81,10 +74,10 @@ public class NodeTableTest {
     public void testAddLink() {
         NodeTable table = new NodeTable();
         
-        TableHeaderNode head = table.getTableHeader();
-        RowHeaderNode row = table.addRow();
-        ColHeaderNode col = table.addCol();
-        LinkNode link = table.addLink(row, col);
+        Node head = table.tableHeader;
+        Node row = table.addRow();
+        Node col = table.addCol();
+        Node link = table.addLink(row, col);
         
         assertEquals(row, head.up);
         assertEquals(row, head.down);
@@ -117,13 +110,13 @@ public class NodeTableTest {
         
         assertTrue(table.hasNoVisibleColumns());
         
-        RowHeaderNode row = table.addRow();
+        Node row = table.addRow();
         assertTrue(table.hasNoVisibleColumns());
         
-        ColHeaderNode col = table.addCol();
+        Node col = table.addCol();
         assertFalse(table.hasNoVisibleColumns());
         
-        LinkNode link = table.addLink(row, col);
+        Node link = table.addLink(row, col);
         assertFalse(table.hasNoVisibleColumns());
     }
 
@@ -136,13 +129,13 @@ public class NodeTableTest {
         
         assertTrue(table.hasNoVisibleRows());
         
-        RowHeaderNode row = table.addRow();
+        Node row = table.addRow();
         assertFalse(table.hasNoVisibleRows());
         
-        ColHeaderNode col = table.addCol();
+        Node col = table.addCol();
         assertFalse(table.hasNoVisibleRows());
         
-        LinkNode link = table.addLink(row, col);
+        Node link = table.addLink(row, col);
         assertFalse(table.hasNoVisibleRows());
     }
 
@@ -153,10 +146,10 @@ public class NodeTableTest {
     public void testIsEveryLinkGood() {
         NodeTable table = new NodeTable();
         
-        TableHeaderNode head = table.getTableHeader();
-        RowHeaderNode row = table.addRow();
-        ColHeaderNode col = table.addCol();
-        LinkNode link = table.addLink(row, col);
+        Node head = table.tableHeader;
+        Node row = table.addRow();
+        Node col = table.addCol();
+        Node link = table.addLink(row, col);
         
         assertTrue(table.isEveryLinkGood(3));
     }

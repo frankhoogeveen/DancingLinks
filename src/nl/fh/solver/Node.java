@@ -3,27 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.node;
-
-import nl.fh.solver.LinksSolver;
+package nl.fh.solver;
 
 
 /**
  *
- *  Links of a two dimensional circular (toroidal) double linked list
+ * Links of a two dimensional circular (toroidal) double linked list
+ * It is not the responsibility of this class to make sure that all 
+ * connections are consistent. That should be done by the context.
  * 
  * @author frank
  */
-public abstract class AbstractNode implements BareNode{
+public class Node{
     // the nearest neighbours
-    AbstractNode left;
-    AbstractNode right;
-    AbstractNode up;
-    AbstractNode down;
+    Node left;
+    Node right;
+    Node up;
+    Node down;
+    
+    Node row;
+    Node col;
     
     // the context in which the links are used
     // this enables human readable prints of this link
-    private static LinksSolver context;
+    private static NodeTable context;
 
     /**
      * 
@@ -31,8 +34,8 @@ public abstract class AbstractNode implements BareNode{
      * 
      * The context determines the formatting of this link
      */
-    public static void setContext(LinksSolver context) {
-        AbstractNode.context = context;
+    static void setContext(NodeTable context) {
+        Node.context = context;
     }
     
     @Override
@@ -49,24 +52,32 @@ public abstract class AbstractNode implements BareNode{
     //
     /////////////////////////////////////////
     
-    public void removeVertical(){
+    void removeVertical(){
         this.up.down = this.down;
         this.down.up = this.up;
+        
+        System.out.println("removeVertical " + this.toString());
     }
     
-    public void restoreVertical(){
+    void restoreVertical(){
         this.up.down = this;
         this.down.up = this;
+        
+        System.out.println("restoreVertical " + this.toString());
     }
 
-    public void removeHorizontal(){  
+    void removeHorizontal(){  
         this.left.right = this.right;
         this.right.left = this.left;
+        
+        System.out.println("removeHorizontal " + this.toString());        
     }
     
-    public void restoreHorizontal(){
+    void restoreHorizontal(){
         this.left.right = this;
         this.right.left = this;
+        
+        System.out.println("restoreHorizontal " + this.toString());            
     }
     
 
@@ -82,7 +93,7 @@ public abstract class AbstractNode implements BareNode{
      * 
      * @param other 
      */
-    void insertLeft(AbstractNode other){
+    void insertLeft(Node other){
         other.left = this.left;
         other.right = this;
         
@@ -94,7 +105,7 @@ public abstract class AbstractNode implements BareNode{
      * Insert an other link to the right of this
      * @param other 
      */
-    void insertRight(AbstractNode other){
+    void insertRight(Node other){
         other.right = this.right;
         other.left = this;
         
@@ -106,7 +117,7 @@ public abstract class AbstractNode implements BareNode{
      * Insert an other link above this
      * @param other 
      */
-    void insertAbove(AbstractNode other){
+    void insertAbove(Node other){
         other.up =this.up;
         other.down = this;
         
@@ -118,63 +129,36 @@ public abstract class AbstractNode implements BareNode{
      * Insert another link below this
      * @param other 
      */
-    void insertBelow(AbstractNode other){
+    void insertBelow(Node other){
         other.down = this.down;
         other.up = this;
         
         this.down.up = other;
         this.down = other;
-    }
-    
+    } 
+
     /////////////////////////////////////////
     //
-    // getters and setters
+    // code to recognize the headers
     //
     /////////////////////////////////////////
+    /**
+     * 
+     * @return true if this node is a row header, or the table header
+     * 
+     */
+    public boolean isRowHeader(){
+        return this.row == this;
+    }
+    /**
+     * 
+     * @return true if this node is a column header, or the table header
+     * 
+     */
+    public boolean isColHeader(){
+        return this.col == this;
+    }
     
-    public AbstractNode getLeft() {
-        return left;
-    }
-
-    void setLeft(AbstractNode left) {
-        this.left = left;
-    }
-
-    public AbstractNode getRight() {
-        return right;
-    }
-
-    void setRight(AbstractNode right) {
-        this.right = right;
-    }
-
-    public AbstractNode getUp() {
-        return up;
-    }
-
-    void setUp(AbstractNode up) {
-        this.up = up;
-    }
-
-    public AbstractNode getDown() {
-        return down;
-    }
-
-    void setDown(AbstractNode down) {
-        this.down = down;
-    }    
-
-    /**
-     *
-     *  @return the header of the column in which this link is found
-     */
-     public abstract ColHeader findColumn();
-     
-    /**
-     *
-     *  @return the header of the row in which this link is found
-     */
-     public abstract RowHeader findRow();
     
     /////////////////////////////////////////
     //
@@ -185,7 +169,7 @@ public abstract class AbstractNode implements BareNode{
      *  @param n the maximum number of steps before we should return to this
      *  throws an exception if the link is not circular in all directions
      */
-    void checkNode(long n) throws Exception{
+    public void checkNode(long n) throws Exception{
         checkUp(n);
         checkDown(n);
         checkLeft(n);
@@ -196,7 +180,7 @@ public abstract class AbstractNode implements BareNode{
     }
 
     private void checkUp(long n) throws Exception {
-        AbstractNode current = this;
+        Node current = this;
         for(long m = 0; m < n; m++){
             current = current.up;
             if(current == this){
@@ -207,7 +191,7 @@ public abstract class AbstractNode implements BareNode{
     }
     
     private void checkDown(long n) throws Exception {
-        AbstractNode current = this;
+        Node current = this;
         for(long m = 0; m < n; m++){
             current = current.down;
             if(current == this){
@@ -218,7 +202,7 @@ public abstract class AbstractNode implements BareNode{
     }
     
     private void checkLeft(long n) throws Exception {
-        AbstractNode current = this;
+        Node current = this;
         for(long m = 0; m < n; m++){
             current = current.left;
             if(current == this){
@@ -229,7 +213,7 @@ public abstract class AbstractNode implements BareNode{
     }
     
     private void checkRight(long n) throws Exception {
-        AbstractNode current = this;
+        Node current = this;
         for(long m = 0; m < n; m++){
             current = current.right;
             if(current == this){
@@ -262,5 +246,29 @@ public abstract class AbstractNode implements BareNode{
             throw new Exception("Node has null neigbour" + this.toString());
         }
     }
-    
+
+    public Node getLeft() {
+        return left;
+    }
+
+    public Node getRight() {
+        return right;
+    }
+
+    public Node getUp() {
+        return up;
+    }
+
+    public Node getDown() {
+        return down;
+    }
+
+    public Node getRow() {
+        return row;
+    }
+
+    public Node getCol() {
+        return col;
+    }
+     
 }

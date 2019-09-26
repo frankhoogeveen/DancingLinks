@@ -7,60 +7,85 @@ package nl.fh.solver;
 
 import java.util.HashMap;
 import java.util.Map;
-import nl.fh.node.AbstractNode;
-import nl.fh.node.ColHeaderNode;
-import nl.fh.node.NodeTable;
-import nl.fh.node.RowHeaderNode;
-import nl.fh.node.TableHeaderNode;
 
 /**
  *
  * @author frank
  * @param <R> type of row objects
  * @param <C> type of column objects
+ * 
+ * Object responsible for the mapping between row and column objects
+ * as they appear e.g. in exact cover problems and the nodes.
+ * 
  */
 public class LinksMapper<R, C> {
 
-    private final Map<R, RowHeaderNode> mapRowObjectToHeaderLink;
-    private final Map<C, ColHeaderNode> mapColObjectToHeaderLink;
+    private final Map<R, Node> mapRowObjectToHeaderLink;
+    private final Map<C, Node> mapColObjectToHeaderLink;
     
-    private final Map<RowHeaderNode, R> mapHeaderLinkToRowObject;
-    private final Map<ColHeaderNode, C> mapHeaderLinkToColObject;
+    private final Map<Node, R> mapHeaderLinkToRowObject;
+    private final Map<Node, C> mapHeaderLinkToColObject;
     
     public LinksMapper(){
-        this.mapColObjectToHeaderLink = new HashMap<C, ColHeaderNode>();
-        this.mapRowObjectToHeaderLink = new HashMap<R, RowHeaderNode>();
+        this.mapColObjectToHeaderLink = new HashMap<C, Node>();
+        this.mapRowObjectToHeaderLink = new HashMap<R, Node>();
         
-        this.mapHeaderLinkToRowObject = new HashMap<RowHeaderNode, R>();
-        this.mapHeaderLinkToColObject = new HashMap<ColHeaderNode, C>();
+        this.mapHeaderLinkToRowObject = new HashMap<Node, R>();
+        this.mapHeaderLinkToColObject = new HashMap<Node, C>();
     }
     
-    public void addRow(R row, RowHeaderNode header){
+    
+    /**
+     * 
+     * @param row
+     * @param header 
+     * 
+     * add a new row to the bidirectional mapping
+     * throws an exception when a key or value is reused
+     */
+    public void addRow(R row, Node header){
+        boolean wronk = false;
+        wronk |= mapHeaderLinkToRowObject.containsKey(header);
+        wronk |= mapHeaderLinkToRowObject.containsValue(row);
+        wronk |= mapRowObjectToHeaderLink.containsKey(row);
+        wronk |= mapRowObjectToHeaderLink.containsValue(header);
+        if(wronk){
+            throw new IllegalArgumentException("should not reuse key nor value");
+        }
         
         mapHeaderLinkToRowObject.put(header, row);
         mapRowObjectToHeaderLink.put(row, header);
     }
     
-    public void addCol(C col, ColHeaderNode header){
+    public void addCol(C col, Node header){
+        boolean wronk = false;
+        wronk |= mapHeaderLinkToColObject.containsKey(header);
+        wronk |= mapHeaderLinkToColObject.containsValue(col);
+        wronk |= mapColObjectToHeaderLink.containsKey(col);
+        wronk |= mapColObjectToHeaderLink.containsValue(header);
+        if(wronk){
+            throw new IllegalArgumentException("should not reuse key nor value");
+        }
+        
         
         mapHeaderLinkToColObject.put(header, col);
         mapColObjectToHeaderLink.put(col, header);
     }
     
     
-    public R getRowObject(AbstractNode link) {
-        return mapHeaderLinkToRowObject.get(link.findRow());
+    public R getRowObject(Node link) {
+        return mapHeaderLinkToRowObject.get(link.getRow());
     }
 
-    public C getColObject(AbstractNode link) {
-        return mapHeaderLinkToColObject.get(link.findColumn());
+    public C getColObject(Node link) {
+        return mapHeaderLinkToColObject.get(link.getCol());
     }
     
-    public RowHeaderNode getRowHeader(R row){
+    public Node getRowHeader(R row){
         return mapRowObjectToHeaderLink.get(row);
     }
     
-    public ColHeaderNode getColHeader(C col){
+    public Node getColHeader(C col){
         return mapColObjectToHeaderLink.get(col);
     }
     
@@ -71,20 +96,20 @@ public class LinksMapper<R, C> {
      * @param link
      * @return a string containing the headers that are linked
      */
-    public String shortDescriptionOf(AbstractNode link){
-        if(link instanceof TableHeaderNode){
+    public String shortDescriptionOf(Node link){
+        if(link.isColHeader() && link.isRowHeader()){
             return "table header";
         }
         
-        if(link instanceof RowHeaderNode){
-            return "row header " + mapHeaderLinkToRowObject.get((RowHeaderNode)link);
+        if( link.isRowHeader()){
+            return "row header " + mapHeaderLinkToRowObject.get((Node)link);
         }
         
-        if(link instanceof ColHeaderNode){
-            return "col header " + mapHeaderLinkToColObject.get((ColHeaderNode)link);
+        if(link.isColHeader()){
+            return "col header " + mapHeaderLinkToColObject.get((Node)link);
         }
         
-        return mapHeaderLinkToRowObject.get((RowHeaderNode)link.findRow()) + "/" + mapHeaderLinkToColObject.get((ColHeaderNode)link.findColumn());
+        return mapHeaderLinkToRowObject.get((Node)link.getRow()) + "/" + mapHeaderLinkToColObject.get((Node)link.getCol());
     }
     
     /**
@@ -92,7 +117,7 @@ public class LinksMapper<R, C> {
      * @param link
      * @return a description of the neighbors of each link
      */
-    public String longDescriptionOf(AbstractNode link){
+    public String longDescriptionOf(Node link){
         StringBuilder sb = new StringBuilder();
         
         sb.append("---");
@@ -100,11 +125,11 @@ public class LinksMapper<R, C> {
         sb.append("---\n");
         
         sb.append("row   :");
-        sb.append(shortDescriptionOf((AbstractNode) link.findRow()));
+        sb.append(shortDescriptionOf(link.getRow()));
         sb.append("\n");
         
         sb.append("col   :");
-        sb.append(shortDescriptionOf((AbstractNode)link.findColumn()));
+        sb.append(shortDescriptionOf(link.getCol()));
         sb.append("\n");
         
         sb.append("left  :");
@@ -138,9 +163,9 @@ public class LinksMapper<R, C> {
                 
         sb.append("\n==============================\n");
         
-        AbstractNode currentRow = table.getTableHeader();
+        Node currentRow = table.getTableHeader();
         do{
-            AbstractNode currentCol = currentRow;
+            Node currentCol = currentRow;
             do{
                 sb.append(longDescriptionOf(currentCol));
                 

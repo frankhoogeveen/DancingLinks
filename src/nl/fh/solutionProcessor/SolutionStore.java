@@ -8,7 +8,7 @@ package nl.fh.solutionProcessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import nl.fh.node.RowHeaderNode;
+import nl.fh.solver.Node;
 
 /**
  *
@@ -16,7 +16,7 @@ import nl.fh.node.RowHeaderNode;
  */
 public class SolutionStore implements SolutionProcessor {
 
-    private ArrayList<Set<RowHeaderNode>> list;
+    private ArrayList<Set<Node>> list;
 
     public SolutionStore(){
         initialize();
@@ -24,11 +24,11 @@ public class SolutionStore implements SolutionProcessor {
     
     @Override
     public final void initialize() {
-        this.list = new ArrayList<Set<RowHeaderNode>>();
+        this.list = new ArrayList<Set<Node>>();
     }
 
     @Override
-    public void process(Set<RowHeaderNode> currentSolution) {
+    public void process(Set<Node> currentSolution) {
         this.list.add(currentSolution);
     }
 

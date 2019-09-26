@@ -6,7 +6,7 @@
 package nl.fh.solutionProcessor;
 
 import java.util.Set;
-import nl.fh.node.RowHeaderNode;
+import nl.fh.solver.Node;
 
 /**
  * interface of objects that processes solutions found by the dancing links
@@ -25,7 +25,7 @@ public interface SolutionProcessor {
      * 
      * @param currentSolution 
      */
-    public void process(Set<RowHeaderNode> currentSolution);
+    public void process(Set<Node> currentSolution);
     
     /**
      * 

@@ -3,32 +3,46 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.node;
+package nl.fh.solver;
 
+import nl.fh.solver.Node;
 import java.util.HashSet;
 import java.util.Set;
+import nl.fh.solver.LinksSolver;
 
 /**
  * The concern of this class is to translate a given Exact Match problem 
- * to a set of properly connected links.
+ * to a set of properly connected links
  * 
  * @author frank
  */
 public class NodeTable {
     
-    private final TableHeaderNode tableHeader;
+    final Node tableHeader;
+    private LinksSolver context;
 
     public NodeTable(){
-        TableHeaderNode.reset();
-        tableHeader = TableHeaderNode.getInstance();
+        tableHeader = new Node();
+        
+        tableHeader.row = tableHeader;
+        tableHeader.col = tableHeader;
+        
+        tableHeader.up = tableHeader;
+        tableHeader.down = tableHeader;
+        tableHeader.left = tableHeader;
+        tableHeader.right = tableHeader;
+        
+        Node.setContext(this);
     }
 
     /**
      * 
-     * @return the header newLink of this table
+     * @param context in which the links are used
+     * 
+     * The context determines the formatting of this link
      */
-    public TableHeaderNode getTableHeader() {
-        return tableHeader;
+    void setContext(LinksSolver context) {
+        this.context = context;
     }
     
     /**
@@ -36,8 +50,11 @@ public class NodeTable {
      * 
      * @return the row header of the new row
      */
-    public RowHeaderNode addRow() {
-        RowHeaderNode rowHeader = new RowHeaderNode();
+    public Node addRow() {
+        Node rowHeader = new Node();
+        
+        rowHeader.row = rowHeader;
+        rowHeader.col = tableHeader;
         
         rowHeader.left = rowHeader;
         rowHeader.right = rowHeader;
@@ -52,9 +69,12 @@ public class NodeTable {
      * 
      * @return a new column header
      */
-    public ColHeaderNode addCol() {
+    public Node addCol() {
         
-        ColHeaderNode colHeader = new ColHeaderNode();
+        Node colHeader = new Node();
+        
+        colHeader.row = tableHeader;
+        colHeader.col = colHeader;
         
         colHeader.up = colHeader;
         colHeader.down = colHeader;
@@ -68,37 +88,45 @@ public class NodeTable {
      * Add a newLink between a row and a column. 
      * 
      * Adding of a newLink is idempotent, twice adding a newLink has the same effect
- as adding the newLink once.
+     * as adding the newLink once.
      * 
      * @param rowHeader header of the row
      * @param colHeader header of the column
      * @return the newLink between the two 
+     * 
+     * Throws an exception if the arguments are not headers (in the proper order)
      */
-    public LinkNode addLink(RowHeaderNode rowHeader, ColHeaderNode colHeader) {
+    public Node addLink(Node rowHeader, Node colHeader) {
+        
+        if(!rowHeader.isRowHeader() || !colHeader.isColHeader()){
+            throw new IllegalArgumentException("addLink not called with headers");
+        }
         
         // if they are already linked, do nothing
-        AbstractNode existing = connection(rowHeader, colHeader);
+        Node existing = connection(rowHeader, colHeader);
         if(existing != null){
-            return (LinkNode) existing;
+            return existing;
         }
 
         // otherwise a new newLink has to be inserted at the right spot
-        LinkNode newLink = new LinkNode();
+        Node newLink = new Node();
+        newLink.row = rowHeader;
+        newLink.col = colHeader;
         
         // find the left neighbour
-        AbstractNode currentColumn = colHeader;
-        AbstractNode connectingLink;
+        Node currentColumn = colHeader;
+        Node connectingLink;
         do{
             currentColumn =  currentColumn.left;
-            connectingLink =  connection(rowHeader, (ColHeader) currentColumn);
+            connectingLink =  connection(rowHeader, currentColumn);
         } while(connectingLink == null);
         connectingLink.insertRight(newLink);
         
         //find the right neighbour
         currentColumn = colHeader;
         do{
-            currentColumn = (AbstractNode) currentColumn.right;
-            connectingLink =  connection(rowHeader, (ColHeader) currentColumn);
+            currentColumn = (Node) currentColumn.right;
+            connectingLink =  connection(rowHeader, currentColumn);
         } while(connectingLink == null);
         
         //avoid duplicate insertion when adding the first newLink in the row
@@ -107,10 +135,10 @@ public class NodeTable {
         }
         
         //find the top neighbour
-        AbstractNode currentRow = rowHeader;
+        Node currentRow = rowHeader;
         do{
             currentRow = currentRow.up;
-            connectingLink =  connection((RowHeader) currentRow, colHeader);
+            connectingLink =  connection(currentRow, colHeader);
         } while(connectingLink == null);
         connectingLink.insertBelow(newLink);
         
@@ -118,7 +146,7 @@ public class NodeTable {
         currentRow = rowHeader;
         do{
             currentRow =  currentRow.down;
-            connectingLink =  connection((RowHeader) currentRow, colHeader);
+            connectingLink =  connection( currentRow, colHeader);
         } while(connectingLink == null);
         
         //avoid duplicate insertion when adding the first newLink in the column
@@ -135,29 +163,21 @@ public class NodeTable {
      * @param colHeader
      * @return  the node linking row and column
      * returns null, if there is no link
+     * 
+     * It is assumed that the code calling this method ensures that
+     * rowHeader and colHeader are headers
      */
-    private AbstractNode connection(RowHeader rowHeader, ColHeader colHeader) {
+    private Node connection(Node rowHeader, Node colHeader) {
         
-        AbstractNode current = (AbstractNode) rowHeader;
+        Node current = rowHeader;
         do{
-            if(current.findColumn() == colHeader){
+            if(current.col == colHeader){
                 return current;
             }
-            current = current.getRight();
+            current = current.right;
         }while(current != rowHeader);
         
         return null;
-    }
-    
-    /**
-     * 1
-     * @param rowHeader
-     * @param colHeader
-     * @return true if the row and column, as defined by their headers, are linked
-     *         otherwise false is returned
-     */
-    boolean areLinked(RowHeaderNode rowHeader, ColHeaderNode colHeader) {
-        return connection(rowHeader, colHeader) != null;
     }
 
     /**
@@ -182,7 +202,7 @@ public class NodeTable {
      * @return true if all links are circular
      */
     public boolean isEveryLinkGood(long n) {
-        Set<AbstractNode> alreadyChecked = new HashSet<AbstractNode>();
+        Set<Node> alreadyChecked = new HashSet<Node>();
         try {
             checkRecursively(tableHeader, n, alreadyChecked);
         } catch (Exception ex) {
@@ -192,7 +212,7 @@ public class NodeTable {
         return true;
     }
 
-    private void checkRecursively(AbstractNode link, long n,Set<AbstractNode> alreadyChecked) throws Exception {
+    private void checkRecursively(Node link, long n,Set<Node> alreadyChecked) throws Exception {
         if(alreadyChecked.contains(link)){
             return;
         }
@@ -206,4 +226,23 @@ public class NodeTable {
         checkRecursively(link.left, n, alreadyChecked);
         checkRecursively(link.right, n, alreadyChecked);
     }
+
+    /**
+     * 
+     * @param node
+     * @return a node formatted using the context of this table
+     */
+    String format(Node node) {
+         return this.context.format(node);
+    }
+
+    /**
+     * 
+     * @return  the header node of this table
+     * From here all non-covered nodes can be reached
+     */
+    public Node getTableHeader() {
+        return tableHeader;
+    }
+    
 }

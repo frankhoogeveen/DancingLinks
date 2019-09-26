@@ -2,7 +2,8 @@ package nl.fh.solver;
 
 
 import nl.fh.colStrategy.TakeFirstColumnAvailable;
-import nl.fh.rowStrategy.TakeAllRows;
+import nl.fh.solutionProcessor.MultiProcessor;
+import nl.fh.solutionProcessor.SolutionDisplay;
 import nl.fh.solutionProcessor.SolutionStore;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -24,10 +25,9 @@ public class SolverTest {
     @Test
     public void EmptySolverTest(){
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
-        TakeAllRows rs = new TakeAllRows();
         SolutionStore proc = new SolutionStore();
         
-        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, proc);
 
         solver.solve();
         
@@ -40,10 +40,9 @@ public class SolverTest {
     @Test
     public void OneLinkSolverTest(){
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
-        TakeAllRows rs = new TakeAllRows();
         SolutionStore proc = new SolutionStore();
         
-        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs,  proc);
 
         solver.addLink("rowA", "col1");
         solver.solve();
@@ -54,10 +53,9 @@ public class SolverTest {
     @Test
     public void TwoLinkSolverTest(){
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
-        TakeAllRows rs = new TakeAllRows();
         SolutionStore proc = new SolutionStore();
         
-        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs,  proc);
 
         solver.addLink("rowA", "col2");
         solver.addLink("rowB", "col1");
@@ -69,14 +67,18 @@ public class SolverTest {
     @Test
     public void ThreeLinkSolverTest(){
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
-        TakeAllRows rs = new TakeAllRows();
-        SolutionStore proc = new SolutionStore();
         
-        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
+        MultiProcessor proc = new MultiProcessor();
+        proc.add(new SolutionDisplay());
+        proc.add(new SolutionStore());
+        
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs,  proc);
 
+        
         solver.addLink("rowA", "col2");
         solver.addLink("rowB", "col2");
         solver.addLink("rowB", "col1");
+
         solver.solve();
 
         assertEquals(1,proc.getCount());  
@@ -85,10 +87,9 @@ public class SolverTest {
     @Test
     public void FourLinkSolverTest(){
         TakeFirstColumnAvailable cs = new TakeFirstColumnAvailable();
-        TakeAllRows rs = new TakeAllRows();
         SolutionStore proc = new SolutionStore();
         
-        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, rs,  proc);
+        LinksSolver<String, String> solver = new LinksSolver<String, String>(cs, proc);
 
         solver.addLink("rowA", "col2");
         solver.addLink("rowB", "col2");

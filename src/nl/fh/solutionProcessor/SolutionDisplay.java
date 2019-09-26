@@ -6,7 +6,7 @@
 package nl.fh.solutionProcessor;
 
 import java.util.Set;
-import nl.fh.node.RowHeaderNode;
+import nl.fh.solver.Node;
 
 /**
  *
@@ -25,12 +25,12 @@ public class SolutionDisplay implements SolutionProcessor {
     }
 
     @Override
-    public void process(Set<RowHeaderNode> currentSolution) {
+    public void process(Set<Node> currentSolution) {
         this.count += 1;
         
         StringBuilder sb = new StringBuilder();
         sb.append("--- solution found ---\n");
-        for(RowHeaderNode l : currentSolution){
+        for(Node l : currentSolution){
             sb.append(l.toString());
             sb.append("\n");
         }
