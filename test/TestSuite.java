@@ -6,8 +6,9 @@
  * and open the template in the editor.
  */
 
+import nl.fh.solver.KnuthTest;
 import nl.fh.solver.NodeTableTest;
-import nl.fh.solver.SolverTest;
+import nl.fh.solver.BasicSolverTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -18,7 +19,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     NodeTableTest.class,
-    SolverTest.class
+    BasicSolverTest.class,
+    KnuthTest.class
 })
 public class TestSuite {
     
