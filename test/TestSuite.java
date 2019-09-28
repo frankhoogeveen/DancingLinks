@@ -6,11 +6,8 @@
  * and open the template in the editor.
  */
 
-import nl.fh.solver.NodeTableTest;
-import nl.fh.solver.BasicSolverTest;
-import nl.fh.solver.CurrentWorkingTest;
-import nl.fh.solver.HideUnhideKnuthTest;
-import nl.fh.solver.HideUnhideThreeTest;
+import nl.fh.exact.ExactHittingTest;
+import nl.fh.solver.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -24,7 +21,9 @@ import org.junit.runners.Suite;
     BasicSolverTest.class,
     HideUnhideKnuthTest.class,
     HideUnhideThreeTest.class,
-    CurrentWorkingTest.class
+    KnuthTest.class,
+    ExactHittingTest.class,
+    ExactCoverTest.class
 })
 public class TestSuite {
     

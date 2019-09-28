@@ -11,7 +11,7 @@ import java.util.Set;
 import nl.fh.solver.Node;
 
 /**
- * groups several processors parallel
+ * groups several solution processors in parallel
  * 
  * @author frank
  */
@@ -20,7 +20,11 @@ public class MultiProcessor implements SolutionProcessor {
     List<SolutionProcessor> procList = new ArrayList<SolutionProcessor>();
     long count = 0;
     
-    
+    /**
+     * 
+     * @param proc a solution process that is to be added
+     * 
+     */
     public void add(SolutionProcessor proc){
         if(count > 0){
             throw new UnsupportedOperationException("cannot yet add processors, after process() has been called");

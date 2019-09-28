@@ -6,9 +6,11 @@
 package nl.fh.solver;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import nl.fh.solutionProcessor.SolutionProcessor;
+import nl.fh.solutionProcessor.SolutionStore;
 
 /**
  *
@@ -20,25 +22,34 @@ import nl.fh.solutionProcessor.SolutionProcessor;
  */
 public class LinksSolver<R, C> {
 
-    private final LinksMapper<R, C> mapper;
-    private final NodeTable table;
-    private final Stack<Node> currentPartialSolution;
-    
-    private final SolutionProcessor solutionProcessor;
+    private LinksMapper<R, C> mapper;
+    private NodeTable table;
+    private Stack<Node> currentPartialSolution;
+    private SolutionProcessor solutionProcessor;
 
     /**
-     *
-     * @param proc solution processor
+     * 
      */
-    public LinksSolver(SolutionProcessor proc) {
+    public LinksSolver(){
+        initialize();
+    }
+    
+    private void initialize(){
         this.mapper = new LinksMapper<R, C>();
         this.table = new NodeTable();
         this.currentPartialSolution = new Stack<Node>();
 
-        this.solutionProcessor = proc;
-        
         this.table.setContext(this);
-        
+    }
+    
+    /**
+     *  this construction exists the enable the direct use of solveRecursively()
+     *  without calling solve()
+     * @param proc solution processor
+     */
+    LinksSolver(SolutionProcessor proc) {
+        initialize();
+        this.solutionProcessor = proc;
     }
 
     /**
@@ -48,6 +59,7 @@ public class LinksSolver<R, C> {
      * @param col 
      */
     public void addLink(R row , C col) {
+        
         // create the header links if they do not yet exist
         Node rowHeader = mapper.getRowHeader(row);
         if(rowHeader == null){
@@ -70,7 +82,31 @@ public class LinksSolver<R, C> {
      * Solve a dancing links exact matching problem
      * 
      */
-    public void solve(){
+    public Set<Set<R>> solve(){
+        this.solutionProcessor = new SolutionStore();
+        
+        // solve the link level
+        solveRecursively();
+        
+        // convert to the original objects
+        Set<Set<R>> result = new HashSet<Set<R>>();
+        List<Set<Node>> solutions = ((SolutionStore)solutionProcessor).getSolutions();
+        
+        for(Set<Node> nodeSet : solutions){
+            Set<R> solution = new HashSet<R>();
+            for(Node node : nodeSet){
+                solution.add(this.mapper.getRowObject(node));
+            }
+            result.add(solution);
+        }
+        return result;
+    }
+    
+    
+    /**
+     * the recursive solution at the level of links
+     */
+    public void solveRecursively(){
         
         // if we have enough solutions (or time has run out), return
         if(solutionProcessor.isSatisfied()){
@@ -95,9 +131,7 @@ public class LinksSolver<R, C> {
         
         Node pivot = chosenColumn.down;
         while(pivot != chosenColumn){
-            
-            pushPartialSolution(pivot.row);
-            // currentPartialSolution.push(pivot.row);
+            currentPartialSolution.push(pivot.row);
             
             Node runner = pivot.right;
             do{
@@ -107,7 +141,7 @@ public class LinksSolver<R, C> {
                 runner = runner.right;
             }while(runner != pivot);
             
-            solve();
+            solveRecursively();
             
             runner = pivot.left;
             do{
@@ -116,48 +150,15 @@ public class LinksSolver<R, C> {
                 }
                 runner = runner.left;
             }while(runner != pivot);
-            
-            popPartialSolution();
-            //currentPartialSolution.pop();
+
+            currentPartialSolution.pop();
             pivot = pivot.down;
         }
         
         uncover(chosenColumn);
     }
     
-    @Override
-    public String toString(){
-        return this.mapper.longDescriptionOf(this.table);
-    }
-    
-    /** 
-     * 
-     * @param link
-     * @return the link formatted using the embedded mapper
-     */
-    public String format(Node link){
-        return this.mapper.shortDescriptionOf(link);
-    }
-    
-    /**
-     * 
-     * @return  the table for testing and debugging purposes
-     */
-    NodeTable getTable(){
-        return this.table;
-    }
-
-    private void pushPartialSolution(Node node) {
-        System.out.println("push " + node.toString());
-        this.currentPartialSolution.push(node);
-    }
-
-    private void popPartialSolution() {
-        Node node = this.currentPartialSolution.pop();
-        System.out.println("pop  " + node.toString());
-    }
-
-    private void cover(Node col) {
+        private void cover(Node col) {
         if(!col.isColHeader()){
             throw new IllegalArgumentException();
         }
@@ -191,4 +192,28 @@ public class LinksSolver<R, C> {
         }
         col.restoreHorizontal();
     }
+    
+    @Override
+    public String toString(){
+        return this.mapper.longDescriptionOf(this.table);
+    }
+    
+    /** 
+     * 
+     * @param link
+     * @return the link formatted using the embedded mapper
+     */
+    public String format(Node link){
+        return this.mapper.shortDescriptionOf(link);
+    }
+    
+    /**
+     * 
+     * @return  the table for testing and debugging purposes
+     */
+    NodeTable getTable(){
+        return this.table;
+    }
+
+
 }

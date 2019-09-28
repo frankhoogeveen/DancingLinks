@@ -16,8 +16,12 @@
         </libraries>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>coincendence</word>
+            <word>https</word>
             <word>montecarlo</word>
+            <word>org</word>
             <word>unhide</word>
+            <word>wiki</word>
+            <word>wikipedia</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

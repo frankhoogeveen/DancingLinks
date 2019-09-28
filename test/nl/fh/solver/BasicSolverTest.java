@@ -30,7 +30,7 @@ public class BasicSolverTest {
         
         LinksSolver<String, String> solver = new LinksSolver<String, String>(proc);
 
-        solver.solve();
+        solver.solveRecursively();
         
         //
         // note that the empty set is counted as a solution
@@ -48,7 +48,7 @@ public class BasicSolverTest {
         LinksSolver<String, String> solver = new LinksSolver<String, String>(proc);
 
         solver.addLink("rowA", "col1");
-        solver.solve();
+        solver.solveRecursively();
 
         assertEquals(1,proc.getCount());  
         
@@ -67,7 +67,7 @@ public class BasicSolverTest {
 
         solver.addLink("rowA", "col2");
         solver.addLink("rowB", "col1");
-        solver.solve();
+        solver.solveRecursively();
 
         assertEquals(1,proc.getCount());  
     }
@@ -86,7 +86,7 @@ public class BasicSolverTest {
         solver.addLink("rowB", "col2");
         solver.addLink("rowB", "col1");
 
-        solver.solve();
+        solver.solveRecursively();
 
         assertEquals(1,proc.getCount());  
     }
@@ -101,7 +101,7 @@ public class BasicSolverTest {
         solver.addLink("rowB", "col2");
         solver.addLink("rowB", "col1");
         solver.addLink("rowA", "col1");
-        solver.solve();
+        solver.solveRecursively();
 
         assertEquals(2, proc.getCount());  
     }
@@ -138,7 +138,7 @@ public class BasicSolverTest {
         solver.addLink("rowF", "col5");        
         solver.addLink("rowF", "col7");        
         */
-        solver.solve();
+        solver.solveRecursively();
 
         assertEquals(0, proc.getCount());  
     }
@@ -174,7 +174,7 @@ public class BasicSolverTest {
         solver.addLink("rowF", "col5");        
         solver.addLink("rowF", "col7");        
         */
-        solver.solve();
+        solver.solveRecursively();
 
         // solution expected is  none
         assertEquals(0, proc.getCount());  
@@ -211,7 +211,7 @@ public class BasicSolverTest {
         solver.addLink("rowF", "col5");        
         solver.addLink("rowF", "col7");        
         */
-        solver.solve();
+        solver.solveRecursively();
 
         // solution expected is none
         assertEquals(0, proc.getCount());  

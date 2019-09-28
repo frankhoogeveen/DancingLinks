@@ -30,7 +30,7 @@ public class KnuthTest {
         
         MultiProcessor proc = new MultiProcessor();
         SolutionStore store = new SolutionStore();
-        proc.add(new SolutionDisplay());
+        // proc.add(new SolutionDisplay());
         proc.add(store);
         
         LinksSolver<String, String> solver = new LinksSolver<String, String>(proc);
@@ -58,7 +58,7 @@ public class KnuthTest {
         solver.addLink("rowF", "col5");        
         solver.addLink("rowF", "col7");        
 
-        solver.solve();
+        solver.solveRecursively();
 
         // solution expected is  ADE
         assertEquals(1, proc.getCount());  
