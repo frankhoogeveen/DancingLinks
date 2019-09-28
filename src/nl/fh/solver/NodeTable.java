@@ -5,10 +5,8 @@
  */
 package nl.fh.solver;
 
-import nl.fh.solver.Node;
 import java.util.HashSet;
 import java.util.Set;
-import nl.fh.solver.LinksSolver;
 
 /**
  * The concern of this class is to translate a given Exact Match problem 
@@ -233,6 +231,9 @@ public class NodeTable {
      * @return a node formatted using the context of this table
      */
     String format(Node node) {
+        if(this.context == null){
+            return "node";
+        }
          return this.context.format(node);
     }
 

@@ -56,28 +56,28 @@ public class Node{
         this.up.down = this.down;
         this.down.up = this.up;
         
-        System.out.println("removeVertical " + this.toString());
+        // System.out.println("removeVertical " + this.toString());
     }
     
     void restoreVertical(){
         this.up.down = this;
         this.down.up = this;
         
-        System.out.println("restoreVertical " + this.toString());
+        // System.out.println("restoreVertical " + this.toString());
     }
 
     void removeHorizontal(){  
         this.left.right = this.right;
         this.right.left = this.left;
         
-        System.out.println("removeHorizontal " + this.toString());        
+        // System.out.println("removeHorizontal " + this.toString());        
     }
     
     void restoreHorizontal(){
         this.left.right = this;
         this.right.left = this;
         
-        System.out.println("restoreHorizontal " + this.toString());            
+        // System.out.println("restoreHorizontal " + this.toString());            
     }
     
 
@@ -269,6 +269,50 @@ public class Node{
 
     public Node getCol() {
         return col;
+    }
+
+    /**
+     *  hiding a complete column
+     */
+    void hideColumn() {
+        Node runner = this.col;
+        do{
+            runner.removeHorizontal();
+            runner = runner.down;
+        } while(runner != this.col);
+    }
+
+    /**
+     * the inverse of hideColumn()
+     */
+    void unhideColumn(){
+        Node runner = this.col;
+        do{
+            runner = runner.up;
+            runner.restoreHorizontal();
+        } while(runner != this.col);
+    }
+    
+    /**
+     * hiding a complete row
+     */
+    void hideRow() {
+        Node runner = this.row;
+        do{
+            runner.removeVertical();
+            runner = runner.right;
+        } while(runner != this.row);
+    }
+    
+    /**
+     * the inverse of hideRow()
+     */
+    void unhideRow(){
+        Node runner = this.row;
+        do{
+            runner = runner.left;
+            runner.restoreVertical();
+        }while(runner != this.row);
     }
      
 }

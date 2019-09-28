@@ -6,10 +6,8 @@
 package nl.fh.solver;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import nl.fh.colStrategy.ColStrategy;
 import nl.fh.solutionProcessor.SolutionProcessor;
 
 /**
@@ -26,21 +24,17 @@ public class LinksSolver<R, C> {
     private final NodeTable table;
     private final Stack<Node> currentPartialSolution;
     
-    private final ColStrategy colStrategy;
     private final SolutionProcessor solutionProcessor;
 
     /**
      *
-     * @param cs column strategy
-     * @param rs row strategy
      * @param proc solution processor
      */
-    public LinksSolver(ColStrategy cs, SolutionProcessor proc) {
+    public LinksSolver(SolutionProcessor proc) {
         this.mapper = new LinksMapper<R, C>();
         this.table = new NodeTable();
         this.currentPartialSolution = new Stack<Node>();
-        
-        this.colStrategy = cs;
+
         this.solutionProcessor = proc;
         
         this.table.setContext(this);
@@ -86,55 +80,49 @@ public class LinksSolver<R, C> {
         // reached a solution
         if(table.hasNoVisibleColumns()){
             Set<Node> solutionSet= new HashSet(this.currentPartialSolution);
-            solutionProcessor.process(solutionSet);
+            solutionProcessor.process(solutionSet); 
             return;
-        }
-        
-        // reached a dead end
-        if(table.hasNoVisibleRows()){
-           return;
-        }      
+        }  
         
         // no conclusion yet, reduce the table and continue the search
-        Node chosenColumn = this.colStrategy.chooseColumn(table);
+        
+
+        // choose the column
+        Node chosenColumn = table.getTableHeader().right;
+        
+        //cover the chose column
+        cover(chosenColumn);
+        
         Node pivot = chosenColumn.down;
         while(pivot != chosenColumn){
-            currentPartialSolution.push(pivot.row);
-           
-            // hide all involved col headers
-            Node runner = pivot.row.right;
-            while(runner != pivot.row){
-                runner.col.removeHorizontal();
-                runner = runner.right;
-            }
             
-            // hide all involved row headers
-            runner = pivot.col.down;
-            while(runner != pivot.col){
-                runner.row.removeVertical();
-                runner = runner.down;
-            }
+            pushPartialSolution(pivot.row);
+            // currentPartialSolution.push(pivot.row);
+            
+            Node runner = pivot.right;
+            do{
+                if(!runner.isRowHeader()){
+                    cover(runner.col);
+                }
+                runner = runner.right;
+            }while(runner != pivot);
             
             solve();
-
-            // restore row headers
-            runner = pivot.col.up;
-            while(runner != pivot.col){
-                runner.row.restoreVertical();
-                runner = runner.up;
-            }
             
-            // restore the column headers
-            runner = pivot.row.left;
-            while(runner != pivot.row){
-                runner.col.restoreVertical();
+            runner = pivot.left;
+            do{
+                if(!runner.isRowHeader()){
+                    uncover(runner.col);
+                }
                 runner = runner.left;
-            }
+            }while(runner != pivot);
             
-            currentPartialSolution.pop();
-            
+            popPartialSolution();
+            //currentPartialSolution.pop();
             pivot = pivot.down;
         }
+        
+        uncover(chosenColumn);
     }
     
     @Override
@@ -159,4 +147,48 @@ public class LinksSolver<R, C> {
         return this.table;
     }
 
+    private void pushPartialSolution(Node node) {
+        System.out.println("push " + node.toString());
+        this.currentPartialSolution.push(node);
+    }
+
+    private void popPartialSolution() {
+        Node node = this.currentPartialSolution.pop();
+        System.out.println("pop  " + node.toString());
+    }
+
+    private void cover(Node col) {
+        if(!col.isColHeader()){
+            throw new IllegalArgumentException();
+        }
+        
+        col.removeHorizontal();
+        
+        Node descender = col.down;
+        while(descender != col){
+            Node horizontal = descender.right;
+            while(horizontal != descender){
+                horizontal.removeVertical();
+                horizontal = horizontal.right;
+            }
+             descender = descender.down;
+        }
+    }
+
+    private void uncover(Node col) {
+        if(!col.isColHeader()){
+            throw new IllegalArgumentException();
+        }
+        
+        Node ascender = col.up;
+        while(ascender != col){
+            Node horizontal = ascender.left;
+            while(horizontal != ascender){
+                horizontal.restoreVertical();
+                horizontal = horizontal.left;
+            }
+            ascender = ascender.up;
+        }
+        col.restoreHorizontal();
+    }
 }

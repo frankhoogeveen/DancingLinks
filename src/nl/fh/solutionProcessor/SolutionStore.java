@@ -29,6 +29,12 @@ public class SolutionStore implements SolutionProcessor {
 
     @Override
     public void process(Set<Node> currentSolution) {
+        System.out.println("processing new solution");
+        for(Node n : currentSolution){
+            System.out.println("   " + n.toString());
+        }
+        System.out.println();
+        
         this.list.add(currentSolution);
     }
 
@@ -46,7 +52,7 @@ public class SolutionStore implements SolutionProcessor {
      * 
      * @return the list of all solutions
      */
-    public List getSolutions(){
+    public List<Set<Node>> getSolutions(){
         return this.list;
     }
     

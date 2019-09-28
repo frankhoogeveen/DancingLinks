@@ -7,7 +7,10 @@
  */
 
 import nl.fh.solver.NodeTableTest;
-import nl.fh.solver.SolverTest;
+import nl.fh.solver.BasicSolverTest;
+import nl.fh.solver.CurrentWorkingTest;
+import nl.fh.solver.HideUnhideKnuthTest;
+import nl.fh.solver.HideUnhideThreeTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -18,7 +21,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     NodeTableTest.class,
-    SolverTest.class
+    BasicSolverTest.class,
+    HideUnhideKnuthTest.class,
+    HideUnhideThreeTest.class,
+    CurrentWorkingTest.class
 })
 public class TestSuite {
     
