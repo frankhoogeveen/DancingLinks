@@ -6,6 +6,7 @@
  * and open the template in the editor.
  */
 
+import nl.fh.exact.ExactCoverTest;
 import nl.fh.exact.ExactHittingTest;
 import nl.fh.solver.*;
 import org.junit.runner.RunWith;

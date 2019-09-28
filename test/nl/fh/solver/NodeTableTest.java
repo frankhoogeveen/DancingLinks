@@ -5,8 +5,6 @@
  */
 package nl.fh.solver;
 
-import nl.fh.solver.Node;
-import nl.fh.solver.NodeTable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
