@@ -82,15 +82,9 @@ public class LinksSolver<R, C> {
             Set<Node> solutionSet= new HashSet(this.currentPartialSolution);
             solutionProcessor.process(solutionSet); 
             return;
-        }
-        
-        // reached a dead end
-        if(table.hasNoVisibleRows()){
-           return;
-        }      
+        }  
         
         // no conclusion yet, reduce the table and continue the search
-        
         
         // the strategy for choosing the pivot is basic, take the 
         // first column and go down
@@ -98,6 +92,7 @@ public class LinksSolver<R, C> {
         Node pivot = chosenColumn.down;
         
         while(pivot != chosenColumn){
+            
             currentPartialSolution.push(pivot.row);
             
             Node runner = pivot.row.right;
@@ -137,6 +132,12 @@ public class LinksSolver<R, C> {
      * @param node 
      */
     private void uncover(Node node){
+        Node runner = node.col.up;
+        while(runner != node.col){
+            runner.unhideRow();
+            runner = runner.up;
+        }
+        node.unhideColumn();
     }
     
     @Override

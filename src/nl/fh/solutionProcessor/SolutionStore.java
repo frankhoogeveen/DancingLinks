@@ -46,7 +46,7 @@ public class SolutionStore implements SolutionProcessor {
      * 
      * @return the list of all solutions
      */
-    public List getSolutions(){
+    public List<Set<Node>> getSolutions(){
         return this.list;
     }
     

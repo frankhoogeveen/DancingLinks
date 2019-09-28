@@ -1,6 +1,7 @@
 package nl.fh.solver;
 
 
+import java.util.Set;
 import nl.fh.solutionProcessor.MultiProcessor;
 import nl.fh.solutionProcessor.SolutionDisplay;
 import nl.fh.solutionProcessor.SolutionStore;
@@ -33,6 +34,9 @@ public class BasicSolverTest {
         // note that the empty set is counted as a solution
         //
         assertEquals(1,proc.getCount());  
+        
+        Set<Node> soln = proc.getSolutions().get(0);
+        assertEquals(0, soln.size());
     }
     
     @Test
@@ -45,6 +49,12 @@ public class BasicSolverTest {
         solver.solve();
 
         assertEquals(1,proc.getCount());  
+        
+        Set<Node> soln = proc.getSolutions().get(0);
+        assertEquals(1, soln.size());
+        
+        assertFalse(soln.contains(solver.getTable().tableHeader));
+        assertTrue(soln.contains(solver.getTable().tableHeader.down));
     }
     
     @Test
@@ -106,7 +116,7 @@ public class BasicSolverTest {
         
         solver.addLink("rowA", "col3");
         solver.addLink("rowA", "col5");
-        solver.addLink("rowA", "col6");
+        solver.addLink("rowA", "col7");
         
         solver.addLink("rowB", "col1");
         solver.addLink("rowB", "col4");
@@ -128,8 +138,7 @@ public class BasicSolverTest {
         */
         solver.solve();
 
-        // solution expected is  AB
-        assertEquals(1, proc.getCount());  
+        assertEquals(0, proc.getCount());  
     }
     
     @Test
@@ -143,7 +152,7 @@ public class BasicSolverTest {
 
         solver.addLink("rowA", "col3");
         solver.addLink("rowA", "col5");
-        solver.addLink("rowA", "col6");
+        solver.addLink("rowA", "col7");
         
         solver.addLink("rowB", "col1");
         solver.addLink("rowB", "col4");
@@ -180,7 +189,7 @@ public class BasicSolverTest {
 
         solver.addLink("rowA", "col3");
         solver.addLink("rowA", "col5");
-        solver.addLink("rowA", "col6");
+        solver.addLink("rowA", "col7");
         
         solver.addLink("rowB", "col1");
         solver.addLink("rowB", "col4");

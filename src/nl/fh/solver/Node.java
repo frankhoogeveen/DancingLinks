@@ -301,7 +301,7 @@ public class Node{
         do{
             runner.removeVertical();
             runner = runner.right;
-        } while(runner != this.col);
+        } while(runner != this.row);
     }
     
     /**

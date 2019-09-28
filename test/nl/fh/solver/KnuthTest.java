@@ -1,6 +1,7 @@
 package nl.fh.solver;
 
 
+import java.util.Set;
 import nl.fh.solutionProcessor.MultiProcessor;
 import nl.fh.solutionProcessor.SolutionDisplay;
 import nl.fh.solutionProcessor.SolutionStore;
@@ -26,8 +27,9 @@ public class KnuthTest {
     public void KnuthTest(){
         
         MultiProcessor proc = new MultiProcessor();
+        SolutionStore store = new SolutionStore();
         proc.add(new SolutionDisplay());
-        proc.add(new SolutionStore());
+        proc.add(store);
         
         LinksSolver<String, String> solver = new LinksSolver<String, String>(proc);
 
@@ -58,5 +60,16 @@ public class KnuthTest {
 
         // solution expected is  ADE
         assertEquals(1, proc.getCount());  
+        
+        
+        Set<Node> soln = store.getSolutions().get(0);
+        
+        assertFalse(soln.contains(solver.getTable().tableHeader));
+        assertTrue(soln.contains(solver.getTable().tableHeader.down));    //A
+        assertFalse(soln.contains(solver.getTable().tableHeader.down.down));    //B
+        assertFalse(soln.contains(solver.getTable().tableHeader.down.down.down));//C
+        assertTrue(soln.contains(solver.getTable().tableHeader.down.down.down.down));//D
+        assertTrue(soln.contains(solver.getTable().tableHeader.down.down.down.down.down));//E
+        assertFalse(soln.contains(solver.getTable().tableHeader.down.down.down.down.down.down));//F        
     }
 }
