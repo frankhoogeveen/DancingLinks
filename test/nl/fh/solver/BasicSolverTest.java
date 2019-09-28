@@ -5,6 +5,8 @@ import java.util.Set;
 import nl.fh.solutionProcessor.MultiProcessor;
 import nl.fh.solutionProcessor.SolutionDisplay;
 import nl.fh.solutionProcessor.SolutionStore;
+import nl.fh.solver.LinksSolver;
+import nl.fh.solver.Node;
 import org.junit.Test;
 import static org.junit.Assert.*;
 /*

@@ -1,5 +1,7 @@
 package nl.fh.solver;
 
+import nl.fh.solver.Node;
+import nl.fh.solver.NodeTable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 

@@ -86,58 +86,43 @@ public class LinksSolver<R, C> {
         
         // no conclusion yet, reduce the table and continue the search
         
-        // the strategy for choosing the pivot is basic, take the 
-        // first column and go down
+
+        // choose the column
         Node chosenColumn = table.getTableHeader().right;
-        Node pivot = chosenColumn.down;
         
+        //cover the chose column
+        cover(chosenColumn);
+        
+        Node pivot = chosenColumn.down;
         while(pivot != chosenColumn){
             
-            currentPartialSolution.push(pivot.row);
+            pushPartialSolution(pivot.row);
+            // currentPartialSolution.push(pivot.row);
             
-            Node runner = pivot.row.right;
-            while(runner != pivot.row){
-                cover(runner);
+            Node runner = pivot.right;
+            do{
+                if(!runner.isRowHeader()){
+                    cover(runner.col);
+                }
                 runner = runner.right;
-            }
+            }while(runner != pivot);
             
             solve();
             
-            runner = pivot.row.left;
-            while(runner != pivot.row){
-                uncover(runner);
+            runner = pivot.left;
+            do{
+                if(!runner.isRowHeader()){
+                    uncover(runner.col);
+                }
                 runner = runner.left;
-            }
+            }while(runner != pivot);
             
-            currentPartialSolution.pop();
+            popPartialSolution();
+            //currentPartialSolution.pop();
             pivot = pivot.down;
         }
-    }
-    
-    /**
-     * 
-     * @param node should not be row header
-     */
-    private void cover(Node node){
-        node.hideColumn();
-        Node runner = node.col.down;
-        while(runner != node.col){
-            runner.hideRow();
-            runner = runner.down;
-        }
-    }
-    
-    /**
-     * The inverse of cover
-     * @param node 
-     */
-    private void uncover(Node node){
-        Node runner = node.col.up;
-        while(runner != node.col){
-            runner.unhideRow();
-            runner = runner.up;
-        }
-        node.unhideColumn();
+        
+        uncover(chosenColumn);
     }
     
     @Override
@@ -160,5 +145,50 @@ public class LinksSolver<R, C> {
      */
     NodeTable getTable(){
         return this.table;
+    }
+
+    private void pushPartialSolution(Node node) {
+        System.out.println("push " + node.toString());
+        this.currentPartialSolution.push(node);
+    }
+
+    private void popPartialSolution() {
+        Node node = this.currentPartialSolution.pop();
+        System.out.println("pop  " + node.toString());
+    }
+
+    private void cover(Node col) {
+        if(!col.isColHeader()){
+            throw new IllegalArgumentException();
+        }
+        
+        col.removeHorizontal();
+        
+        Node descender = col.down;
+        while(descender != col){
+            Node horizontal = descender.right;
+            while(horizontal != descender){
+                horizontal.removeVertical();
+                horizontal = horizontal.right;
+            }
+             descender = descender.down;
+        }
+    }
+
+    private void uncover(Node col) {
+        if(!col.isColHeader()){
+            throw new IllegalArgumentException();
+        }
+        
+        Node ascender = col.up;
+        while(ascender != col){
+            Node horizontal = ascender.left;
+            while(horizontal != ascender){
+                horizontal.restoreVertical();
+                horizontal = horizontal.left;
+            }
+            ascender = ascender.up;
+        }
+        col.restoreHorizontal();
     }
 }
