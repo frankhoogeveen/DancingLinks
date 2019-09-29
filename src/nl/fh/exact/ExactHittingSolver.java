@@ -13,7 +13,7 @@ import nl.fh.solver.LinksSolver;
  * @author frank
  */
 public class ExactHittingSolver<T> {
-    private LinksSolver<T, Set<T>> solver;
+    private final LinksSolver<T, Set<T>> solver;
     
     public ExactHittingSolver(){
         this.solver = new LinksSolver<T, Set<T>>();
