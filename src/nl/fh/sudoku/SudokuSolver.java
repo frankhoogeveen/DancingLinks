@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import nl.fh.exact.ExactHittingSolver;
 
 /**
  *
@@ -17,20 +18,23 @@ import java.util.Set;
  * @param <V>  the type of values used
  */
 public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
-    private Set<V> values;
-    private Set<L> locations;
-    private Set<Set<L>> conditions;
-    private Map<L, V> givens;
+    private Set<V> values = null;
+    private Set<L> locations =  null;
+    private Set<Set<L>> conditions = null;
+    private Map<L, V> givens = null;
     
     public SudokuSolver(){
+        reset();
+        checkState();
+    }
+
+    public final void reset() {
         values = new HashSet<V>();
         locations = new HashSet<L>();
         conditions = new HashSet<Set<L>>();
         givens = new HashMap<L, V>();
-        
-        checkState();
     }
-
+    
     /**
      * method to ensure that this solver is in a legal state
      */
@@ -89,11 +93,53 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
      * @return the solutions of the Sudoku
      */
     public Set<Map<L,V>> solve(){
+        // set up an exact hitting solver
+        ExactHittingSolver solver = new ExactHittingSolver();
+        
         // translate the sudoku problem into an exact hitting problem
         
+        // each location should have exactly one value
+        for(L loc : locations){
+            Set<SudokuAtom<L,V>> set = new HashSet<SudokuAtom<L,V>>();
+            for(V val : values){
+                set.add(new SudokuAtom<L,V>(loc, val));
+            }    
+            solver.addSet(set);
+        }
         
+        // enforce the givens
+        for(L loc : givens.keySet()){
+            Set<SudokuAtom<L,V>> set = new HashSet<SudokuAtom<L,V>>();
+            set.add(new SudokuAtom<L,V>(loc, givens.get(loc)));
+            solver.addSet(set);
+        }
+        
+        
+        //enforce the condtions
+        for(Set<L> condition : conditions){
+            for(V val : values){
+                Set<SudokuAtom<L,V>> set = new HashSet<SudokuAtom<L,V>>();
+                for(L loc : condition){
+                    set.add(new SudokuAtom<L,V>(loc, val));
+                }
+                solver.addSet(set);
+            }
+        }
+        
+        // use the exact hitting solver
+        Set<Set<SudokuAtom<L,V>>> atomSets = solver.solve();
+        
+        // convert the result to a more conveniant format
+        Set<Map<L,V>> result = new HashSet<Map<L,V>>();
+        for(Set<SudokuAtom<L,V>> atomSet : atomSets){
+            Map<L,V> solution = new HashMap<L,V>();
+            for(SudokuAtom atom : atomSet){
+                solution.put((L)atom.getLocation(), (V)atom.getValue());
+            }
+            result.add(solution);
+        }
+        return result;
     }
-        
 }
   
 

@@ -5,7 +5,7 @@
  */
 package nl.fh.sudoku;
 
-import static javax.management.Query.value;
+import java.util.Objects;
 
 /**
  *
@@ -26,6 +26,44 @@ public class SudokuAtom<L extends SudokuLocation, V extends SudokuValue> {
         this.location = location;
         this.value = value;
     }
+
+    public L getLocation() {
+        return location;
+    }
+
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 13 * hash + Objects.hashCode(this.location);
+        hash = 13 * hash + Objects.hashCode(this.value);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SudokuAtom<?, ?> other = (SudokuAtom<?, ?>) obj;
+        if (!Objects.equals(this.location, other.location)) {
+            return false;
+        }
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        return true;
+    }
+    
     
     @Override
     public String toString(){

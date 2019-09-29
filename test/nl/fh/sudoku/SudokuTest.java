@@ -1,6 +1,7 @@
 package nl.fh.sudoku;
 
-import java.util.Set;
+import nl.fh.sudoku.standard.StandardSudokuSolver;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -45,18 +46,11 @@ public class SudokuTest {
             {6,4,5, 3,1,2, 9,7,8},
             {9,7,8, 6,4,5, 3,1,2}
          };
-        /*
-        SudukoGrid grid = new StandardSudokuGrid(puzzle);
-        SudokuSolver solver = new SudokuSolver();
         
-        Set<SudokuGrid> solutions = solver.solve(grid);
+        StandardSudokuSolver solver = new StandardSudokuSolver();
+        int[][][] solutions = solver.solve(puzzle);
         
-        assertEquals(1, solutions.size());
-        
-        for(SudokuGrid solution : solutions){
-            assertEquals(expected, solution);
-        }
-
-*/
+        assertEquals(1, solutions.length);
+        assertArrayEquals(expected, solutions[0]);
     }
 }

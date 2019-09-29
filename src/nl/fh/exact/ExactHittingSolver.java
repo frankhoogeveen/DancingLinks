@@ -30,7 +30,7 @@ public class ExactHittingSolver<T> {
      * 
      * @return  all solutions of the exact cover problem on the union of all sets added
      */
-    Set<Set<T>> solve() {
+    public Set<Set<T>> solve() {
         return this.solver.solve();
     }
 }
