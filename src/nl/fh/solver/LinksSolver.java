@@ -22,10 +22,13 @@ import nl.fh.solutionProcessor.SolutionStore;
  */
 public class LinksSolver<R, C> {
 
+    private final boolean verbose = false;
+    
     private LinksMapper<R, C> mapper;
     private NodeTable table;
     private Stack<Node> currentPartialSolution;
     private SolutionProcessor solutionProcessor;
+
 
     /**
      * 
@@ -81,8 +84,11 @@ public class LinksSolver<R, C> {
      * 
      * Solve a dancing links exact matching problem
      * 
+     * @return a set of solutions. Each solution is a set of rows
      */
     public Set<Set<R>> solve(){
+        
+        // create a place to store the solution NOTE this is a concrete class, smell!
         this.solutionProcessor = new SolutionStore();
         
         // solve the link level
@@ -107,6 +113,25 @@ public class LinksSolver<R, C> {
      * the recursive solution at the level of links
      */
     public void solveRecursively(){
+        //make some noise to track what is going on
+        if(verbose){
+            long rowCount = 0;
+            for(Node node = table.tableHeader; node.left != table.tableHeader ; node = node.left){
+                rowCount++;
+            }
+            
+            long colCount = 0;
+            for(Node node = table.tableHeader; node.down != table.tableHeader ; node = node.down){
+                colCount++;
+            }
+            
+            StringBuffer sb = new StringBuffer();
+            sb.append("entering solveRecursively.  #row:");
+            sb.append(rowCount);
+            sb.append(" , #col:");
+            sb.append(colCount);
+            System.out.println(sb);
+        }
         
         // if we have enough solutions (or time has run out), return
         if(solutionProcessor.isSatisfied()){
@@ -117,6 +142,9 @@ public class LinksSolver<R, C> {
         if(table.hasNoVisibleColumns()){
             Set<Node> solutionSet= new HashSet(this.currentPartialSolution);
             solutionProcessor.process(solutionSet); 
+            if(verbose){
+                System.out.println("solution found");
+            }
             return;
         }  
         
@@ -153,12 +181,16 @@ public class LinksSolver<R, C> {
 
             currentPartialSolution.pop();
             pivot = pivot.down;
-        }
+           }
         
         uncover(chosenColumn);
+        
+        if(verbose){
+            System.out.println("exiting solveRecursively");
+        }
     }
     
-        private void cover(Node col) {
+    private void cover(Node col) {
         if(!col.isColHeader()){
             throw new IllegalArgumentException();
         }

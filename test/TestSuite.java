@@ -9,6 +9,7 @@
 import nl.fh.exact.ExactCoverTest;
 import nl.fh.exact.ExactHittingTest;
 import nl.fh.solver.*;
+import nl.fh.sudoku.KnownSolutionTest;
 import nl.fh.sudoku.SudokuTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -26,6 +27,7 @@ import org.junit.runners.Suite;
     KnuthTest.class,
     ExactHittingTest.class,
     ExactCoverTest.class,
+    KnownSolutionTest.class,
     SudokuTest.class
 })
 public class TestSuite {

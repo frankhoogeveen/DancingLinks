@@ -96,7 +96,12 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
         // set up an exact hitting solver
         ExactHittingSolver solver = new ExactHittingSolver();
         
-        // translate the sudoku problem into an exact hitting problem
+        // enforce the givens (should be first, for performance reasons)
+        for(L loc : givens.keySet()){
+            Set<SudokuAtom<L,V>> set = new HashSet<SudokuAtom<L,V>>();
+            set.add(new SudokuAtom<L,V>(loc, givens.get(loc)));
+            solver.addSet(set);
+        }
         
         // each location should have exactly one value
         for(L loc : locations){
@@ -106,14 +111,6 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
             }    
             solver.addSet(set);
         }
-        
-        // enforce the givens
-        for(L loc : givens.keySet()){
-            Set<SudokuAtom<L,V>> set = new HashSet<SudokuAtom<L,V>>();
-            set.add(new SudokuAtom<L,V>(loc, givens.get(loc)));
-            solver.addSet(set);
-        }
-        
         
         //enforce the condtions
         for(Set<L> condition : conditions){
