@@ -10,7 +10,16 @@ import nl.fh.solver.LinksSolver;
 
 
 /**
- *
+ * class to solve the exact cover problem using the dancing links algorithm
+ * 
+ * - give this solver a number of sets by calling addSet()
+ * - call solve() to obtains a set of solutions
+ * 
+ * - each solution is a sub-collection of the sets added, with the property that
+ * every element of the union of all sets occurs in exactly of set in the solution
+ * (i.e. the solution forms a partition of the union of all added sets
+ * 
+ * 
  * @author frank
  */
 public class ExactCoverSolver<T> {

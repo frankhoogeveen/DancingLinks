@@ -14,7 +14,17 @@ import nl.fh.solutionProcessor.SolutionStore;
 
 /**
  *
- *  context in which a dancing links problem is set up
+ *  solver for a dancing links problem
+ * 
+ *  this solver is used by:
+ * 
+ *  - defining the type of row and column objects 
+ *  - for each link between a row and column object link() has to be called
+ *  - once all links have been setup, solve() is called
+ * 
+ *  solve() returns a set of solutions, each solution is a set of row nodes,
+ *  such that each column links to exactly one row in the solution.
+ *  
  * 
  * @author frank
  * @param <R> type of row objects
@@ -112,7 +122,7 @@ public class LinksSolver<R, C> {
     /**
      * the recursive solution at the level of links
      */
-    public void solveRecursively(){
+    void solveRecursively(){
         //make some noise to track what is going on
         if(verbose){
             long rowCount = 0;
@@ -148,9 +158,6 @@ public class LinksSolver<R, C> {
             return;
         }  
         
-        // no conclusion yet, reduce the table and continue the search
-        
-
         // choose the column
         Node chosenColumn = table.getTableHeader().right;
         
@@ -235,7 +242,7 @@ public class LinksSolver<R, C> {
      * @param link
      * @return the link formatted using the embedded mapper
      */
-    public String format(Node link){
+    String format(Node link){
         return this.mapper.shortDescriptionOf(link);
     }
     
@@ -246,6 +253,4 @@ public class LinksSolver<R, C> {
     NodeTable getTable(){
         return this.table;
     }
-
-
 }

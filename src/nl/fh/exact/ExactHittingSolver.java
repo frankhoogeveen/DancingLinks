@@ -10,6 +10,15 @@ import nl.fh.solver.LinksSolver;
 
 /**
  * Solver for the exact hitting problem
+ * 
+ * - create this ExactHittingSolver, specifying the type
+ * - hand it a number of sets by calling addSet
+ * - call solve() to get a set of solutions
+ * 
+ * a solution is a subset of the union of all sets that were arguments of addSet()
+ * such that the intersection of the solution with each of the addSets has exactly
+ * one element
+ * 
  * @author frank
  */
 public class ExactHittingSolver<T> {

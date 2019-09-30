@@ -23,7 +23,9 @@ import org.junit.runners.Suite;
  * @author frank
  */
 @RunWith(Categories.class)
+
 @ExcludeCategory(SlowTest.class)
+
 @Suite.SuiteClasses({
     NodeTableTest.class,
     BasicSolverTest.class,
@@ -34,9 +36,10 @@ import org.junit.runners.Suite;
     ExactCoverTest.class,
     KnownSolutionTest.class,
     SudokuTest.class,
+    
+    // the slow tests
     HardSudokuTest.class  
 })
-
 
 public class TestSuite {
     
