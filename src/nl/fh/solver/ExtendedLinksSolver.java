@@ -7,7 +7,6 @@ package nl.fh.solver;
 
 import java.util.HashSet;
 import java.util.Set;
-import nl.fh.solver.LinksSolver;
 
 /**
  *
