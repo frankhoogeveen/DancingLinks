@@ -6,7 +6,7 @@
 package nl.fh.exact;
 
 import java.util.Set;
-import nl.fh.extended.ExtendedLinksSolver;
+import nl.fh.solver.ExtendedLinksSolver;
 
 
 /**

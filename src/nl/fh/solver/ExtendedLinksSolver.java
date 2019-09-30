@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.fh.extended;
+package nl.fh.solver;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +47,7 @@ public class ExtendedLinksSolver<R,C> {
     }
     /**
      * makes a column secondary, i.e. the column could be linked zero or one
- times to a wrappedRow object in the wrappedSolution
+     * times to a wrappedRow object in the wrappedSolution
      * 
      * @param col
      */

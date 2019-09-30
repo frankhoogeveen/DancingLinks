@@ -126,7 +126,7 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
         // use the exact hitting solver
         Set<Set<SudokuAtom<L,V>>> atomSets = solver.solve();
         
-        // convert the result to a more conveniant format
+        // convert the result to a more conveniant format, a set of maps
         Set<Map<L,V>> result = new HashSet<Map<L,V>>();
         for(Set<SudokuAtom<L,V>> atomSet : atomSets){
             Map<L,V> solution = new HashMap<L,V>();
