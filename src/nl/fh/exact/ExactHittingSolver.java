@@ -9,7 +9,7 @@ import java.util.Set;
 import nl.fh.solver.LinksSolver;
 
 /**
- *
+ * Solver for the exact hitting problem
  * @author frank
  */
 public class ExactHittingSolver<T> {
@@ -19,7 +19,10 @@ public class ExactHittingSolver<T> {
         this.solver = new LinksSolver<T, Set<T>>();
     }
     
-    
+    /**
+     * 
+     * @param set a set that has to be hit exactly once by a solution
+     */
     public void addSet(Set<T> set) {
         for(T t : set){
             solver.addLink(t, set);

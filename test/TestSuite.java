@@ -9,8 +9,12 @@
 import nl.fh.exact.ExactCoverTest;
 import nl.fh.exact.ExactHittingTest;
 import nl.fh.solver.*;
+import nl.fh.sudoku.HardSudokuTest;
 import nl.fh.sudoku.KnownSolutionTest;
+import nl.fh.categories.SlowTest;
 import nl.fh.sudoku.SudokuTest;
+import org.junit.experimental.categories.Categories;
+import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -18,7 +22,8 @@ import org.junit.runners.Suite;
  *
  * @author frank
  */
-@RunWith(Suite.class)
+@RunWith(Categories.class)
+@ExcludeCategory(SlowTest.class)
 @Suite.SuiteClasses({
     NodeTableTest.class,
     BasicSolverTest.class,
@@ -28,8 +33,11 @@ import org.junit.runners.Suite;
     ExactHittingTest.class,
     ExactCoverTest.class,
     KnownSolutionTest.class,
-    SudokuTest.class
+    SudokuTest.class,
+    HardSudokuTest.class  
 })
+
+
 public class TestSuite {
     
 }
