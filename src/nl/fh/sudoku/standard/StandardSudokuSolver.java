@@ -17,13 +17,27 @@ import nl.fh.sudoku.SudokuSolver;
 public class StandardSudokuSolver extends SudokuSolver<StandardLocation, StandardValue>{
     private static final int NINE = 9;
     private static final int THREE = 3;
+    private boolean nrc = false;
     
+    /**
+     * create a solver for standard sudoku's
+     */
     public StandardSudokuSolver(){
         super();
+        nrc = false;
     }
-
-    private void resetStandard() {
-        super.reset();
+    
+    /**
+     *  create a solver for standard of nrc type sudoku's
+     * @param nrc if true, add for more conditions 
+     */
+    public StandardSudokuSolver(boolean nrc){
+        super();
+        this.nrc = nrc;
+    }
+    
+    public void reset() {
+        resetFields();
         
         // reset the values
         for(int ival = 1; ival <= NINE; ival++){
@@ -37,7 +51,7 @@ public class StandardSudokuSolver extends SudokuSolver<StandardLocation, Standar
             }
         }
         
-        // reset the conditions on rows, columns and blocks
+        // reset the conditions on rows, columns and standard blocks
         for(int n = 1; n<= NINE; n++){
             resetRow(n);
             resetColumn(n);
@@ -47,6 +61,14 @@ public class StandardSudokuSolver extends SudokuSolver<StandardLocation, Standar
            for(int ny = 0; ny < THREE; ny++){
                resetBlock(nx,ny);
            }
+        }
+        
+        // optionally add the four blokcs that the NRC uses
+        if(nrc){
+            resetNrcCondition(2,2);
+            resetNrcCondition(2,6);
+            resetNrcCondition(6,2);
+            resetNrcCondition(6,6);
         }
     }
 
@@ -75,14 +97,27 @@ public class StandardSudokuSolver extends SudokuSolver<StandardLocation, Standar
         }
         this.addCondition(condition);
     }
+    
+     private void resetNrcCondition(int ix, int iy) {
+        Set<StandardLocation> condition = new HashSet<StandardLocation>();
+        for(int nx = 0; nx < THREE; nx++){
+            for(int ny = 0; ny < THREE; ny++){
+                condition.add(StandardLocation.getInstance(ix+nx, iy+ny));
+            }
+        }
+        super.addCondition(condition);
+    }
     /**
      * 
      * @param puzzle
      * @return  an array of solutions
      */
     public int[][][] solve(int[][] puzzle) {
-        resetStandard();
-        
+        reset();
+        return solveWithoutReset(puzzle);
+    }
+    
+    int[][][] solveWithoutReset(int[][] puzzle) {
         // add the givens from the puzzle
         for(int ix = 1; ix <= NINE; ix++){
             for(int iy = 1; iy <= NINE; iy++){

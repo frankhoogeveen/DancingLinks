@@ -14,6 +14,9 @@ import nl.fh.sudoku.KnownSolutionTest;
 import nl.fh.categories.SlowTest;
 import nl.fh.exact.ExtendedExactCoverTest;
 import nl.fh.exact.ExtendedExactHittingTest;
+import nl.fh.nqueens.NqueensFastTest;
+import nl.fh.nqueens.NqueensHalfTest;
+import nl.fh.nqueens.NqueensSlowTest;
 import nl.fh.sudoku.SudokuTest;
 import org.junit.experimental.categories.Categories;
 import org.junit.experimental.categories.Categories.ExcludeCategory;
@@ -40,6 +43,9 @@ import org.junit.runners.Suite;
     SudokuTest.class,
     ExtendedExactCoverTest.class,
     ExtendedExactHittingTest.class,
+    NqueensFastTest.class,
+    NqueensSlowTest.class,
+    NqueensHalfTest.class,
     
     // the slow tests
     HardSudokuTest.class  

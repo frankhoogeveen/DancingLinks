@@ -1,9 +1,11 @@
 package nl.fh.sudoku;
 
+import nl.fh.categories.SlowTest;
 import nl.fh.sudoku.standard.StandardSudokuSolver;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -146,6 +148,7 @@ public class SudokuTest {
     }
     
     @Test
+    @Category(SlowTest.class)
     public void ThreeStarTest(){
          int[][] puzzle = {
             {6,0,9, 7,5,0, 0,4,3},
@@ -182,5 +185,5 @@ public class SudokuTest {
         
         assertEquals(1, solutions.length);
         assertArrayEquals(expected, solutions[0]);
-    }
+    }   
 }

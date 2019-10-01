@@ -24,11 +24,11 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
     private Map<L, V> givens = null;
     
     public SudokuSolver(){
-        reset();
+        resetFields();
         checkState();
     }
 
-    public final void reset() {
+    public void resetFields() {
         values = new HashSet<V>();
         locations = new HashSet<L>();
         conditions = new HashSet<Set<L>>();
@@ -79,6 +79,18 @@ public class SudokuSolver<L extends SudokuLocation, V extends SudokuValue> {
     }
     
     public void addCondition(Set<L> condition){
+        /* 
+           verbosity for debugging purposes
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("condition: ");
+        for(L loc : condition){
+            sb.append(loc.toString());
+            sb.append(" ");
+        }
+        System.out.println(sb);
+        // end of verbosity */
+        
         this.conditions.add(condition);
         checkState();
     }
